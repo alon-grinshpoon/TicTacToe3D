@@ -26,68 +26,6 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-// Keyboard Event Receiver
-class KeyboardEventReceiver : public IEventReceiver
-{
-public:
-
-	virtual bool OnEvent(const SEvent& event)
-	{
-		// Remember whether each key is down or up
-		if (event.EventType == irr::EET_KEY_INPUT_EVENT)
-			if (!event.KeyInput.PressedDown)
-				pressed = false;
-			else
-				KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
-
-		return false;
-	}
-
-	// Check if a key was pressed
-	virtual bool IsKeyDown(EKEY_CODE keyCode) const
-	{
-		return KeyIsDown[keyCode];
-	}
-
-	// Check if a key is released
-	virtual bool IsKeyUp(EKEY_CODE keyCode) const
-	{
-		return !KeyIsDown[keyCode];
-	}
-
-	// Check if a key is being held down
-	virtual bool IsPressed() const
-	{
-		return pressed;
-	}
-
-	// Set keyboard as pressed
-	virtual void press()
-	{
-		pressed = true;
-	}
-
-	// Set a key as released
-	virtual void release(EKEY_CODE keyCode)
-	{
-		KeyIsDown[keyCode] = false;
-	}
-
-	// Constructor
-	KeyboardEventReceiver()
-	{
-		for (u32 i = 0; i < KEY_KEY_CODES_COUNT; ++i)
-			KeyIsDown[i] = false;
-		pressed = false;
-	}
-
-private:
-	// Store the current state of each key
-	bool KeyIsDown[KEY_KEY_CODES_COUNT];
-	// Flag for a single press
-	bool pressed;
-};
-
 // TicTacToe Main Screen
 int tictactoe() {
 
@@ -152,17 +90,20 @@ int tictactoe() {
 	// Run window
 	while (window->run() && !quit)
 	{
-		// Check if game was won 
+		// Check if game need to restart
 		if (restart) {
 			guienv->clear();
 			smgr->clear();
 			board->reset();
 			goto start;
-		}
-		else if (win) {
+		} // Check if the game was won or a tie occured
+		else if (win || turn > BOARD_SIZE * BOARD_SIZE) {
 			if (!pause) {
 				// Add title mesh to window
-				if (player == 2) { // User (X) won, since AI is last
+				if (turn > BOARD_SIZE * BOARD_SIZE) {
+					mesh = smgr->getMesh("../../Resources/tie.obj");
+				}
+				else if (player == 2) { // User (X) won, since AI is last
 					mesh = smgr->getMesh("../../Resources/won.obj");
 				}
 				else { // AI (O) won, since user is last
@@ -202,10 +143,6 @@ int tictactoe() {
 				// Unpress reciever
 				receiver.press();
 			}
-		}
-		// Check if a tie occured
-		else if (turn > BOARD_SIZE * BOARD_SIZE) {
-
 		}
 		// Game is on
 		else {
