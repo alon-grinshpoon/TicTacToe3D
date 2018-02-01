@@ -45,7 +45,43 @@ int Board::getSlot(int x, int y)
 }
 
 bool Board::checkWin() {
-	return false;
+	bool win;
+	// Check rows
+	for (int i = 0; i < BOARD_SIZE; ++i) {
+		win = true;
+		for (int j = 0; j < BOARD_SIZE - 1; ++j) {
+			if (board[i][j] != board[i][j + 1]
+				|| board[i][j] == 0)
+				win &= false;
+		}
+		if (win) return win;
+	}
+	// Check columns
+	for (int j = 0; j < BOARD_SIZE; ++j) {
+		win = true;
+		for (int i = 0; i < BOARD_SIZE - 1; ++i) {
+			if (board[i][j] != board[i + 1][j]
+				|| board[i][j] == 0)
+				win &= false;
+		}
+		if (win) return win;
+	}
+	// Check diagonals
+	win = true;
+	for (int i = 0; i < BOARD_SIZE - 1; ++i) {
+		if (board[i][i] != board[i + 1][i + 1]
+			|| board[i][i] == 0)
+			win &= false;
+	}
+	if (win) return win;
+	win = true;
+	for (int i = 0; i < BOARD_SIZE - 1; ++i) {
+		if (board[i][BOARD_SIZE - 1 - i] != board[i + 1][BOARD_SIZE - 2 - i]
+			|| board[i][BOARD_SIZE - 1 - i] == 0)
+			win &= false;
+	}
+	// Return win status
+	return win;
 }
 
 int Board::getCoordinate(irr::f32 position)

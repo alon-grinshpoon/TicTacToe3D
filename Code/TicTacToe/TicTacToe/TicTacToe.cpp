@@ -134,16 +134,16 @@ int tictactoe() {
 	// smgr->addCameraSceneNodeMaya(0, -1500.0F, 200.0F, 1500.0F,-1,200.0F,true);
 	// smgr->addCameraSceneNodeFPS();
 
-	// Frame rate timer
-	u32 timer = window->getTimer()->getTime();
-
 	// Randomize turn
 	srand(time(NULL));
 	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
 	bool turnStart = true;
 
+	// Intitialize a flag for winning
+	bool win = false;
+
 	// Run window
-	while (window->run())
+	while (window->run() && !win)
 	{
 		// Add X/O mesh in an empty slot at the start of each turn
 		if (turnStart) {
@@ -205,11 +205,6 @@ int tictactoe() {
 			turnStart = false;
 		}
 
-		// Calculate the frame delta time
-		const u32 now = window->getTimer()->getTime();
-		const f32 frameDeltaTime = (f32)(now - timer) / 1000.f; // Time in seconds
-		timer = now;
-
 		// Check for keyboard interaction
 		if (!receiver.IsPressed()) {
 
@@ -257,6 +252,9 @@ int tictactoe() {
 					vector3df nodePosition = node->getPosition();
 					nodePosition.Z += DISTANCE_FACTOR;
 					node->setPosition(nodePosition);
+					// Check for win
+					if (board->checkWin())
+						win = true;
 					// Switch turn
 					player = (player == 1) ? 2 : 1;
 					turnStart = true;
