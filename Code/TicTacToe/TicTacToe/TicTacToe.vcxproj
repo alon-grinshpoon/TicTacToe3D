@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\along\Downloads\Apple TicTacToe Challenge\Code\irrlicht-1.8.4\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\along\Downloads\Apple TicTacToe Challenge\Code\irrlicht-1.8.4\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\irrlicht-1.8.4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\irrlicht-1.8.4\lib\Win32-visualstudio;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
