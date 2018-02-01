@@ -1,11 +1,8 @@
 // TicTacToe.cpp : Defines the entry point for the application.
 
-// Includes
+// Includess
 #include "stdafx.h"
 #include "TicTacToe.h"
-#include <irrlicht.h> // Irrlicht h.file
-#include <stdlib.h>
-#include <time.h>	
 // Namespaces
 using namespace irr; // Irrlicht namespace
 using namespace core;
@@ -61,16 +58,8 @@ private:
 // TicTacToe Main Screen
 int tictactoe() {
 	
-	// Initialize the board data structures
-	#define BOARD_SIZE 3
-	int board[BOARD_SIZE][BOARD_SIZE] =
-	{
-		{ 0,0,0 },
-		{ 0,0,0 },
-		{ 0,0,0 }
-	};
-	IAnimatedMesh* x[BOARD_SIZE * BOARD_SIZE];
-	IAnimatedMesh* o[BOARD_SIZE * BOARD_SIZE];
+	// Initialize the board data structure
+	Board* board = Board::getInstance();
 
 	// Create a keyboard event receiver
 	KeyboardEventReceiver receiver;
@@ -90,10 +79,6 @@ int tictactoe() {
 	IVideoDriver* driver = window->getVideoDriver();
 	ISceneManager* smgr = window->getSceneManager();
 	IGUIEnvironment* guienv = window->getGUIEnvironment();
-
-	// Add static text to window
-	guienv->addStaticText(L"It's the player's turn!",
-		rect<s32>(10, 10, 260, 22), false);
 
 	// Add grid mesh to window
 	IAnimatedMesh* mesh = smgr->getMesh("../../Resources/grid.obj");
@@ -124,7 +109,7 @@ int tictactoe() {
 	
 	// Randomize turn
 	srand(time(NULL));
-	int isPlayersTurn = rand() % 2 + 1; // 1 = Player (X), 2 = AI (O)
+	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
 	bool turnStart = true;
 
 	// Run window
@@ -132,19 +117,28 @@ int tictactoe() {
 	{
 		// Add X/O mesh in an empty slot at the start of each turn
 		if (turnStart) {
-			if (isPlayersTurn == 1) // Player's (X) turn
+			guienv->clear();
+			if (player == 1) { // User's (X) turn
 				mesh = smgr->getMesh("../../Resources/X.obj");
-			else // AI's (O) turn
+				// Add static text to window
+				guienv->addStaticText(L"It's  your turn!",
+					rect<s32>(10, 10, 260, 22), false);
+			} else { // AI's (O) turn
 				mesh = smgr->getMesh("../../Resources/O.obj");
+				// Add static text to window
+				guienv->addStaticText(L"It's the AI's turn!",
+					rect<s32>(10, 10, 260, 22), false);
+			}
+
 			if (!mesh)
 			{
 				window->drop();
 				return 1;
 			}
 			// Choose empty slot
-
+			vector3df slot = board->getEmptySlot();
 			// Place X/O mesh
-			node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(20, 20, 0));
+			node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, slot);
 			// Texture X/O mesh
 			if (node)
 			{
@@ -166,12 +160,18 @@ int tictactoe() {
 			nodePosition.Y += SPEED * frameDeltaTime;
 		else if (receiver.IsKeyDown(irr::KEY_KEY_S))
 			nodePosition.Y -= SPEED * frameDeltaTime;
-
 		if (receiver.IsKeyDown(irr::KEY_KEY_A))
 			nodePosition.X -= SPEED * frameDeltaTime;
 		else if (receiver.IsKeyDown(irr::KEY_KEY_D))
 			nodePosition.X += SPEED * frameDeltaTime;
+		// Set position
 		node->setPosition(nodePosition);
+
+		// Set X/O
+		if (receiver.IsKeyDown(irr::KEY_SPACE)) {
+			player = (player == 1) ? 2 : 1;
+			turnStart = true;
+		}
 
 		// Draw frame
 		driver->beginScene(true, true, SColor(255, 50, 95, 170));
