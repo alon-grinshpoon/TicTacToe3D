@@ -1,4 +1,4 @@
-﻿// TicTacToe.cpp : Defines the entry point for the application.
+// TicTacToe.cpp : Defines the entry point for the application.
 
 // Includes
 #include "stdafx.h"
