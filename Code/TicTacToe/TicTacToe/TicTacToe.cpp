@@ -150,7 +150,7 @@ int tictactoe() {
 		driver->beginScene(true, true, SColor(255, 50, 95, 170));
 		smgr->drawAll(); // Draw the 3D scene
 		guienv->drawAll(); // Draw the GUI environment
-		driver->endScene();
+		driver->endScene(); // End the scene
 	}
 
 	// Remove screen
