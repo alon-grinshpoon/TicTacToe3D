@@ -14,7 +14,7 @@ using namespace gui;
 // Link with the Irrlicht.lib to use the Irrlicht.DLL file (already copied in the project folder)
 #pragma comment(lib, "../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib")
 // Static Variables
-# define DEBUG 1 // Debugging flag
+# define DEBUG 0 // Debugging flag
 #define MAX_LOADSTRING 100
 // Global Variables
 HINSTANCE hInst;                                // current instance
@@ -53,6 +53,9 @@ int tictactoe() {
 	IVideoDriver* driver = window->getVideoDriver();
 	ISceneManager* smgr = window->getSceneManager();
 	IGUIEnvironment* guienv = window->getGUIEnvironment();
+
+	// Set UI font
+	guienv->getSkin()->setFont(guienv->getFont("../../irrlicht-1.8.4/media/font_dejavu_sans.png"));
 
 	// Start label
 	start:
@@ -125,6 +128,9 @@ int tictactoe() {
 					node->setMD2Animation(scene::EMAT_STAND);
 					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
 				}
+				// Add static text to window
+				guienv->addStaticText(L"Press SPACE to restart or ESC to quit.",
+					rect<s32>(315, 10, 660, 50), false);
 				// Pause game
 				pause = true;
 			}
@@ -160,13 +166,13 @@ int tictactoe() {
 					mesh = smgr->getMesh("../../Resources/X.obj");
 					// Add static text to window
 					guienv->addStaticText(L"It's your turn!",
-						rect<s32>(10, 10, 260, 22), false);
+						rect<s32>(10, 10, 260, 50), false);
 				}
 				else { // AI's (O) turn
 					mesh = smgr->getMesh("../../Resources/O.obj");
 					// Add static text to window
 					guienv->addStaticText(L"It's the AI's turn!",
-						rect<s32>(10, 10, 260, 22), false);
+						rect<s32>(10, 10, 260, 50), false);
 				}
 				if (!mesh)
 				{
@@ -179,22 +185,23 @@ int tictactoe() {
 					wchar_t m_string[256];
 
 					swprintf_s(m_string, L"Player is %d", player);
-					guienv->addStaticText(m_string,	rect<s32>(10, 20, 260, 30), false);
+					guienv->addStaticText(m_string,	rect<s32>(10, 30, 260, 65), false);
 
 					swprintf_s(m_string, L"%d %d %d",
 						board->getSlot(0, 2), board->getSlot(1, 2), board->getSlot(2, 2)
 					);
-					guienv->addStaticText(m_string, rect<s32>(10, 30, 260, 60), false);
+					guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 85), false);
 					swprintf_s(m_string, L"%d %d %d",
 						board->getSlot(0, 1), board->getSlot(1, 1), board->getSlot(2, 1)
 					);
-					guienv->addStaticText(m_string, rect<s32>(10, 40, 260, 60), false);
+					guienv->addStaticText(m_string, rect<s32>(10, 70, 260, 100), false);
 					swprintf_s(m_string, L"%d %d %d",
 						board->getSlot(0, 0), board->getSlot(1, 0), board->getSlot(2, 0)
 					);
-					guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 60), false);
+					guienv->addStaticText(m_string, rect<s32>(10, 90, 260, 120), false);
+
 					swprintf_s(m_string, L"Location is %d %d", node->getPosition().X, node->getPosition().Y);
-					guienv->addStaticText(m_string, rect<s32>(10, 60, 260, 80), false);
+					guienv->addStaticText(m_string, rect<s32>(10, 110, 260, 140), false);
 				}
 
 				// Get center slot
