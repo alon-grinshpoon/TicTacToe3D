@@ -1,4 +1,0 @@
-﻿  stdafx.cpp
-  TicTacToe.cpp
-c:\users\along\documents\github\tictactoe3d\code\tictactoe\tictactoe\tictactoe.cpp(76): warning C4715: 'run': not all control paths return a value
-  TicTacToe.vcxproj -> C:\Users\along\Documents\GitHub\TicTacToe3D\Code\TicTacToe\Debug\TicTacToe.exe
