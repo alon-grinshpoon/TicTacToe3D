@@ -113,6 +113,9 @@ int tictactoe() {
 	ISceneManager* smgr = window->getSceneManager();
 	IGUIEnvironment* guienv = window->getGUIEnvironment();
 
+	// Start label
+	start:
+
 	// Add grid mesh to window
 	IAnimatedMesh* mesh = smgr->getMesh("../../Resources/grid.obj");
 	if (!mesh)
@@ -140,136 +143,204 @@ int tictactoe() {
 	bool turnStart = true;
 	int turn = 0;
 
-	// Intitialize a flag for winning
+	// Intitialize a flags for winning, quiting, pausing, and restarting
 	bool win = false;
+	bool quit = false;
+	bool pause = false;
+	bool restart = false;
 
 	// Run window
-	while (window->run() && !win && turn <= BOARD_SIZE * BOARD_SIZE)
+	while (window->run() && !quit)
 	{
-		// Add X/O mesh in an empty slot at the start of each turn
-		if (turnStart) {
-			// Increment turn
-			++turn;
-			// Clear GUI
+		// Check if game was won 
+		if (restart) {
 			guienv->clear();
-			// Set mesh
-			if (player == 1) { // User's (X) turn
-				mesh = smgr->getMesh("../../Resources/X.obj");
-				// Add static text to window
-				guienv->addStaticText(L"It's your turn!",
-					rect<s32>(10, 10, 260, 22), false);
-			}
-			else { // AI's (O) turn
-				mesh = smgr->getMesh("../../Resources/O.obj");
-				// Add static text to window
-				guienv->addStaticText(L"It's the AI's turn!",
-					rect<s32>(10, 10, 260, 22), false);
-			}
-			if (!mesh)
-			{
-				window->drop();
-				return 1;
-			}
-
-			if (DEBUG == 1){
-				// Debugging
-				wchar_t m_string[256];
-
-				swprintf_s(m_string, L"Player is %d", player);
-				guienv->addStaticText(m_string,	rect<s32>(10, 20, 260, 30), false);
-
-				swprintf_s(m_string, L"%d %d %d",
-					board->getSlot(0, 2), board->getSlot(1, 2), board->getSlot(2, 2)
-				);
-				guienv->addStaticText(m_string, rect<s32>(10, 30, 260, 60), false);
-				swprintf_s(m_string, L"%d %d %d",
-					board->getSlot(0, 1), board->getSlot(1, 1), board->getSlot(2, 1)
-				);
-				guienv->addStaticText(m_string, rect<s32>(10, 40, 260, 60), false);
-				swprintf_s(m_string, L"%d %d %d",
-					board->getSlot(0, 0), board->getSlot(1, 0), board->getSlot(2, 0)
-				);
-				guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 60), false);
-				swprintf_s(m_string, L"Location is %d %d", node->getPosition().X, node->getPosition().Y);
-				guienv->addStaticText(m_string, rect<s32>(10, 60, 260, 80), false);
-			}
-
-			// Get center slot
-			vector3df slot = board->getCenterSlot();
-			// Skew distance from camera for visibily
-			slot.Z -= DISTANCE_FACTOR;
-			// Place X/O mesh
-			node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, slot);
-			// Texture X/O mesh
-			if (node)
-			{
-				node->setMaterialFlag(EMF_LIGHTING, false);
-				node->setMD2Animation(scene::EMAT_STAND);
-				node->setMaterialTexture(0, driver->getTexture("../../Resources/white.jpg"));
-			}
-			turnStart = false;
+			smgr->clear();
+			board->reset();
+			goto start;
 		}
-
-		// Check for keyboard interaction
-		if (!receiver.IsPressed()) {
-
-			// Get position
-			vector3df nodePosition = node->getPosition();
-
-			// Update position (up/down and left/right)
-			if (receiver.IsKeyDown(KEY_KEY_W)) {
-				// Move up if possible
-				nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
-				// Release key
-				receiver.release(KEY_KEY_W);
-			}
-			else if (receiver.IsKeyDown(KEY_KEY_S)) {
-				// Move down if possible
-				nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
-				// Release key
-				receiver.release(KEY_KEY_S);
-			}
-			if (receiver.IsKeyDown(KEY_KEY_A)) {
-				// Move left if possible
-				nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
-				// Release key
-				receiver.release(KEY_KEY_A);
-			}
-			else if (receiver.IsKeyDown(KEY_KEY_D)) {
-				// Move right if possible
-				nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
-				// Release key
-				receiver.release(KEY_KEY_D);
-			}
-
-			// Set position
- 			node->setPosition(nodePosition);
-
-			// Set X/O
-			if (receiver.IsKeyDown(KEY_SPACE)) {
-				// Check if slot empty
-				if (board->isEmptySlot(node->getPosition())){
-					// Update board
-					board->setSlot(node->getPosition(), player);
-					// Change texture
-					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
-					// Skew back distance from camera
-					vector3df nodePosition = node->getPosition();
-					nodePosition.Z += DISTANCE_FACTOR;
-					node->setPosition(nodePosition);
-					// Check for win
-					if (board->checkWin())
-						win = true;
-					// Switch turn
-					player = (player == 1) ? 2 : 1;
-					turnStart = true;
+		else if (win) {
+			if (!pause) {
+				// Add winning title meesh to window
+				if (player == 2) { // User (X) won, since AI is last
+					mesh = smgr->getMesh("../../Resources/won.obj");
 				}
-				// Release key
-				receiver.release(KEY_SPACE);
+				else { // AI (O) won, since user is last
+					mesh = smgr->getMesh("../../Resources/lost.obj");
+				}
+				if (!mesh)
+				{
+					window->drop();
+					return 1;
+				}
+				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(0,0,-30));
+				// Texture grid mesh
+				if (node)
+				{
+					node->setMaterialFlag(EMF_LIGHTING, false);
+					node->setMD2Animation(scene::EMAT_STAND);
+					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+				}
+				// Pause game
+				pause = true;
 			}
 
-			// Unpress reciever
-			receiver.press();
+			// Check for keyboard interaction
+			if (!receiver.IsPressed()) {
+				// Restart game
+				if (receiver.IsKeyDown(KEY_SPACE)) {
+					restart = true;
+					// Release key
+					receiver.release(KEY_SPACE);
+				}
+				// Quit game
+				if (receiver.IsKeyDown(KEY_ESCAPE)) {
+					quit = true;
+					// Release key
+					receiver.release(KEY_ESCAPE);
+				}
+				// Unpress reciever
+				receiver.press();
+			}
+		}
+		// Check if a tie occured
+		else if (turn > BOARD_SIZE * BOARD_SIZE) {
+
+		}
+		// Game is on
+		else {
+			// Add X/O mesh in an empty slot at the start of each turn
+			if (turnStart) {
+				// Increment turn
+				++turn;
+				// Clear GUI
+				guienv->clear();
+				// Set mesh
+				if (player == 1) { // User's (X) turn
+					mesh = smgr->getMesh("../../Resources/X.obj");
+					// Add static text to window
+					guienv->addStaticText(L"It's your turn!",
+						rect<s32>(10, 10, 260, 22), false);
+				}
+				else { // AI's (O) turn
+					mesh = smgr->getMesh("../../Resources/O.obj");
+					// Add static text to window
+					guienv->addStaticText(L"It's the AI's turn!",
+						rect<s32>(10, 10, 260, 22), false);
+				}
+				if (!mesh)
+				{
+					window->drop();
+					return 1;
+				}
+
+				if (DEBUG == 1){
+					// Debugging
+					wchar_t m_string[256];
+
+					swprintf_s(m_string, L"Player is %d", player);
+					guienv->addStaticText(m_string,	rect<s32>(10, 20, 260, 30), false);
+
+					swprintf_s(m_string, L"%d %d %d",
+						board->getSlot(0, 2), board->getSlot(1, 2), board->getSlot(2, 2)
+					);
+					guienv->addStaticText(m_string, rect<s32>(10, 30, 260, 60), false);
+					swprintf_s(m_string, L"%d %d %d",
+						board->getSlot(0, 1), board->getSlot(1, 1), board->getSlot(2, 1)
+					);
+					guienv->addStaticText(m_string, rect<s32>(10, 40, 260, 60), false);
+					swprintf_s(m_string, L"%d %d %d",
+						board->getSlot(0, 0), board->getSlot(1, 0), board->getSlot(2, 0)
+					);
+					guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 60), false);
+					swprintf_s(m_string, L"Location is %d %d", node->getPosition().X, node->getPosition().Y);
+					guienv->addStaticText(m_string, rect<s32>(10, 60, 260, 80), false);
+				}
+
+				// Get center slot
+				vector3df slot = board->getCenterSlot();
+				// Skew distance from camera for visibily
+				slot.Z -= DISTANCE_FACTOR;
+				// Place X/O mesh
+				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, slot);
+				// Texture X/O mesh
+				if (node)
+				{
+					node->setMaterialFlag(EMF_LIGHTING, false);
+					node->setMD2Animation(scene::EMAT_STAND);
+					node->setMaterialTexture(0, driver->getTexture("../../Resources/white.jpg"));
+				}
+				turnStart = false;
+			}
+
+			// Check for keyboard interaction
+			if (!receiver.IsPressed()) {
+
+				// Get position
+				vector3df nodePosition = node->getPosition();
+
+				// Update position (up/down and left/right)
+				if (receiver.IsKeyDown(KEY_KEY_W)) {
+					// Move up if possible
+					nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+					// Release key
+					receiver.release(KEY_KEY_W);
+				}
+				else if (receiver.IsKeyDown(KEY_KEY_S)) {
+					// Move down if possible
+					nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+					// Release key
+					receiver.release(KEY_KEY_S);
+				}
+				if (receiver.IsKeyDown(KEY_KEY_A)) {
+					// Move left if possible
+					nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+					// Release key
+					receiver.release(KEY_KEY_A);
+				}
+				else if (receiver.IsKeyDown(KEY_KEY_D)) {
+					// Move right if possible
+					nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+					// Release key
+					receiver.release(KEY_KEY_D);
+				}
+
+				// Set position
+ 				node->setPosition(nodePosition);
+
+				// Set X/O
+				if (receiver.IsKeyDown(KEY_SPACE)) {
+					// Check if slot empty
+					if (board->isEmptySlot(node->getPosition())){
+						// Update board
+						board->setSlot(node->getPosition(), player);
+						// Change texture
+						node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+						// Skew back distance from camera
+						vector3df nodePosition = node->getPosition();
+						nodePosition.Z += DISTANCE_FACTOR;
+						node->setPosition(nodePosition);
+						// Check for win
+						if (board->checkWin())
+							win = true;
+						// Switch turn
+						player = (player == 1) ? 2 : 1;
+						turnStart = true;
+					}
+					// Release key
+					receiver.release(KEY_SPACE);
+				}
+
+				// Quit game
+				if (receiver.IsKeyDown(KEY_ESCAPE)) {
+					quit = true;
+					// Release key
+					receiver.release(KEY_ESCAPE);
+				}
+
+				// Unpress reciever
+				receiver.press();
+			}
 		}
 
 		// Draw frame
@@ -278,11 +349,6 @@ int tictactoe() {
 		guienv->drawAll(); // Draw the GUI environment
 		driver->endScene(); // End the scene
 	}
-
-	// Check if game was won or a tie occured
-	//if (win)
-
-	//else if (turn > BOARD_SIZE * BOARD_SIZE)
 
 	// Remove screen
 	window->drop();

@@ -17,6 +17,7 @@ public:
 	void setSlot(irr::core::vector3df position, int player);
 	int getSlot(int x, int y);
 	bool checkWin();
+	void reset();
 
 private:
 	static Board boardInstance;
