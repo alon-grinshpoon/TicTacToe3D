@@ -169,14 +169,24 @@ int tictactoe() {
 			if (DEBUG == 1){
 				// Debugging
 				wchar_t m_string[256];
+
 				swprintf_s(m_string, L"Player is %d", player);
 				guienv->addStaticText(m_string,	rect<s32>(10, 20, 260, 30), false);
-				swprintf_s(m_string, L"Slots are %d %d %d | %d %d %d | %d %d %d",
-					board->getSlot(0, 0), board->getSlot(0, 1), board->getSlot(0, 2),
-					board->getSlot(1, 0), board->getSlot(1, 1), board->getSlot(1, 2),
-					board->getSlot(2, 0), board->getSlot(2, 1), board->getSlot(2, 2)
+
+				swprintf_s(m_string, L"%d %d %d",
+					board->getSlot(0, 2), board->getSlot(1, 2), board->getSlot(2, 2)
 				);
 				guienv->addStaticText(m_string, rect<s32>(10, 30, 260, 60), false);
+				swprintf_s(m_string, L"%d %d %d",
+					board->getSlot(0, 1), board->getSlot(1, 1), board->getSlot(2, 1)
+				);
+				guienv->addStaticText(m_string, rect<s32>(10, 40, 260, 60), false);
+				swprintf_s(m_string, L"%d %d %d",
+					board->getSlot(0, 0), board->getSlot(1, 0), board->getSlot(2, 0)
+				);
+				guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 60), false);
+				swprintf_s(m_string, L"Location is %d %d", node->getPosition().X, node->getPosition().Y);
+				guienv->addStaticText(m_string, rect<s32>(10, 60, 260, 80), false);
 			}
 
 			// Get center slot
@@ -233,7 +243,7 @@ int tictactoe() {
 			}
 
 			// Set position
-			node->setPosition(nodePosition);
+ 			node->setPosition(nodePosition);
 
 			// Set X/O
 			if (receiver.IsKeyDown(KEY_SPACE)) {
@@ -250,9 +260,9 @@ int tictactoe() {
 					// Switch turn
 					player = (player == 1) ? 2 : 1;
 					turnStart = true;
-					// Release key
-					receiver.release(KEY_SPACE);
 				}
+				// Release key
+				receiver.release(KEY_SPACE);
 			}
 
 			// Unpress reciever

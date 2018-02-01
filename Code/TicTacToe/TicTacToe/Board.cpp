@@ -15,7 +15,7 @@ int Board::board[BOARD_SIZE][BOARD_SIZE] = {
 	{ 0,0,0 },
 	{ 0,0,0 },
 	{ 0,0,0 },
-};;
+};
 
 irr::core::vector3df Board::getCenterSlot()
 {
@@ -36,7 +36,7 @@ void Board::setSlot(irr::core::vector3df position, int player) {
 	int x = getCoordinate(position.X);
 	int y = getCoordinate(position.Y);
 	// Update slot
-	board[x][y] == player;
+	board[x][y] = player;
 }
 
 int Board::getSlot(int x, int y)
