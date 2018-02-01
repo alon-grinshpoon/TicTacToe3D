@@ -138,16 +138,21 @@ int tictactoe() {
 	srand(time(NULL));
 	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
 	bool turnStart = true;
+	int turn = 0;
 
 	// Intitialize a flag for winning
 	bool win = false;
 
 	// Run window
-	while (window->run() && !win)
+	while (window->run() && !win && turn <= BOARD_SIZE * BOARD_SIZE)
 	{
 		// Add X/O mesh in an empty slot at the start of each turn
 		if (turnStart) {
+			// Increment turn
+			++turn;
+			// Clear GUI
 			guienv->clear();
+			// Set mesh
 			if (player == 1) { // User's (X) turn
 				mesh = smgr->getMesh("../../Resources/X.obj");
 				// Add static text to window
@@ -273,6 +278,11 @@ int tictactoe() {
 		guienv->drawAll(); // Draw the GUI environment
 		driver->endScene(); // End the scene
 	}
+
+	// Check if game was won or a tie occured
+	//if (win)
+
+	//else if (turn > BOARD_SIZE * BOARD_SIZE)
 
 	// Remove screen
 	window->drop();
