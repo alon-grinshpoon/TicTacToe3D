@@ -161,7 +161,7 @@ int tictactoe() {
 		}
 		else if (win) {
 			if (!pause) {
-				// Add winning title meesh to window
+				// Add title mesh to window
 				if (player == 2) { // User (X) won, since AI is last
 					mesh = smgr->getMesh("../../Resources/won.obj");
 				}
@@ -174,7 +174,7 @@ int tictactoe() {
 					return 1;
 				}
 				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(0,0,-30));
-				// Texture grid mesh
+				// Texture title mesh
 				if (node)
 				{
 					node->setMaterialFlag(EMF_LIGHTING, false);
