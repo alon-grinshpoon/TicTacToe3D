@@ -32,6 +32,9 @@ int tictactoe() {
 	// Initialize the board data structure
 	Board* board = Board::getInstance();
 
+	// Initialize the AI
+	AI* ai = AI::getInstance();
+
 	// Create a keyboard event receiver
 	KeyboardEventReceiver receiver;
 
@@ -210,74 +213,100 @@ int tictactoe() {
 				turnStart = false;
 			}
 
-			// Check for keyboard interaction
-			if (!receiver.IsPressed()) {
+			vector3df nodePosition;
+			if (player == 1) { // User's (X) turn
+				// Check for keyboard interaction
+				if (!receiver.IsPressed()) {
 
-				// Get position
-				vector3df nodePosition = node->getPosition();
+					// Get position
+					nodePosition = node->getPosition();
 
-				// Update position (up/down and left/right)
-				if (receiver.IsKeyDown(KEY_KEY_W)) {
-					// Move up if possible
-					nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
-					// Release key
-					receiver.release(KEY_KEY_W);
-				}
-				else if (receiver.IsKeyDown(KEY_KEY_S)) {
-					// Move down if possible
-					nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
-					// Release key
-					receiver.release(KEY_KEY_S);
-				}
-				if (receiver.IsKeyDown(KEY_KEY_A)) {
-					// Move left if possible
-					nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
-					// Release key
-					receiver.release(KEY_KEY_A);
-				}
-				else if (receiver.IsKeyDown(KEY_KEY_D)) {
-					// Move right if possible
-					nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
-					// Release key
-					receiver.release(KEY_KEY_D);
-				}
-
-				// Set position
- 				node->setPosition(nodePosition);
-
-				// Set X/O
-				if (receiver.IsKeyDown(KEY_SPACE)) {
-					// Check if slot empty
-					if (board->isEmptySlot(node->getPosition())){
-						// Update board
-						board->setSlot(node->getPosition(), player);
-						// Change texture
-						node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
-						// Skew back distance from camera
-						vector3df nodePosition = node->getPosition();
-						nodePosition.Z += DISTANCE_FACTOR;
-						node->setPosition(nodePosition);
-						// Check for win
-						if (board->checkWin())
-							win = true;
-						// Switch turn
-						player = (player == 1) ? 2 : 1;
-						turnStart = true;
+					// Update position (up/down and left/right)
+					if (receiver.IsKeyDown(KEY_KEY_W)) {
+						// Move up if possible
+						nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+						// Release key
+						receiver.release(KEY_KEY_W);
 					}
-					// Release key
-					receiver.release(KEY_SPACE);
-				}
+					else if (receiver.IsKeyDown(KEY_KEY_S)) {
+						// Move down if possible
+						nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+						// Release key
+						receiver.release(KEY_KEY_S);
+					}
+					if (receiver.IsKeyDown(KEY_KEY_A)) {
+						// Move left if possible
+						nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+						// Release key
+						receiver.release(KEY_KEY_A);
+					}
+					else if (receiver.IsKeyDown(KEY_KEY_D)) {
+						// Move right if possible
+						nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+						// Release key
+						receiver.release(KEY_KEY_D);
+					}
 
-				// Quit game
-				if (receiver.IsKeyDown(KEY_ESCAPE)) {
-					quit = true;
-					// Release key
-					receiver.release(KEY_ESCAPE);
-				}
+					// Set position
+					node->setPosition(nodePosition);
 
-				// Unpress reciever
-				receiver.press();
+					// Set X/O
+					if (receiver.IsKeyDown(KEY_SPACE)) {
+						// Check if slot empty
+						if (board->isEmptySlot(node->getPosition())) {
+							// Update board
+							board->setSlot(node->getPosition(), player);
+							// Change texture
+							node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+							// Skew back distance from camera
+							vector3df nodePosition = node->getPosition();
+							nodePosition.Z += DISTANCE_FACTOR;
+							node->setPosition(nodePosition);
+							// Check for win
+							if (board->checkWin())
+								win = true;
+							// Switch turn
+							player = (player == 1) ? 2 : 1;
+							turnStart = true;
+						}
+						// Release key
+						receiver.release(KEY_SPACE);
+					}
+				}
 			}
+			else { // AI's (O) turn
+
+					// Get position
+					nodePosition = ai->chooseSlot(*board);
+
+					// Set position
+					node->setPosition(nodePosition);
+
+					// Set X/O
+					board->setSlot(node->getPosition(), player);
+					// Change texture
+					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+					// Skew back distance from camera
+					vector3df nodePosition = node->getPosition();
+					nodePosition.Z += DISTANCE_FACTOR;
+					node->setPosition(nodePosition);
+					// Check for win
+					if (board->checkWin())
+						win = true;
+					// Switch turn
+					player = (player == 1) ? 2 : 1;
+					turnStart = true;
+			}
+
+			// Quit game
+			if (receiver.IsKeyDown(KEY_ESCAPE)) {
+				quit = true;
+				// Release key
+				receiver.release(KEY_ESCAPE);
+			}
+
+			// Unpress reciever
+			receiver.press();
 		}
 
 		// Draw frame

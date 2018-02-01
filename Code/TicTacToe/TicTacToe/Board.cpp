@@ -32,6 +32,11 @@ bool Board::isEmptySlot(irr::core::vector3df position)
 	int x = getCoordinate(position.X);
 	int y = getCoordinate(position.Y);
 	// Return if slot is empty
+	return Board::isEmptySlot(x, y);
+}
+bool Board::isEmptySlot(int x, int y)
+{
+	// Return if slot is empty
 	return (board[x][y] == 0);
 }
 
@@ -97,6 +102,12 @@ void Board::reset()
 	for (int i = 0; i < BOARD_SIZE; ++i)
 		for (int j = 0; j < BOARD_SIZE; ++j)
 			board[i][j] = 0;
+}
+
+// Convert a 3D position to a board coordinate
+irr::f32 Board::getPosition(int coordinate)
+{
+	return (coordinate - 1) * POSITION_FACTOR;
 }
 
 // Convert a 3D position to a board coordinate
