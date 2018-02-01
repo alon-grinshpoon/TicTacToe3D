@@ -4,8 +4,8 @@
 #include "stdafx.h"
 #include "TicTacToe.h"
 #include <irrlicht.h> // Irrlicht h.file
-#include <iostream>  // Remove
-#include "driverChoice.h"  // Remove
+#include <stdlib.h>
+#include <time.h>	
 // Namespaces
 using namespace irr; // Irrlicht namespace
 using namespace core;
@@ -13,7 +13,6 @@ using namespace scene;
 using namespace video;
 using namespace io;
 using namespace gui;
-#define _CRT_SECURE_NO_WARNINGS // Remove
 // Link with the Irrlicht.lib to use the Irrlicht.DLL file (already copied in the project folder)
 #pragma comment(lib, "../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib")
 // Static Variables
@@ -61,6 +60,17 @@ private:
 
 // TicTacToe Main Screen
 int tictactoe() {
+	
+	// Initialize the board data structures
+	#define BOARD_SIZE 3
+	int board[BOARD_SIZE][BOARD_SIZE] =
+	{
+		{ 0,0,0 },
+		{ 0,0,0 },
+		{ 0,0,0 }
+	};
+	IAnimatedMesh* x[BOARD_SIZE * BOARD_SIZE];
+	IAnimatedMesh* o[BOARD_SIZE * BOARD_SIZE];
 
 	// Create a keyboard event receiver
 	KeyboardEventReceiver receiver;
@@ -92,26 +102,13 @@ int tictactoe() {
 		window->drop();
 		return 1;
 	}
-	// Texture grid mesh
 	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh);
+	// Texture grid mesh
 	if (node)
 	{
 		node->setMaterialFlag(EMF_LIGHTING, false);
 		node->setMD2Animation(scene::EMAT_STAND);
 		node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
-	}
-	mesh = smgr->getMesh("../../Resources/X.obj");
-	if (!mesh)
-	{
-		window->drop();
-		return 1;
-	}
-	node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(20, 0, 0));
-	if (node)
-	{
-		node->setMaterialFlag(EMF_LIGHTING, false);
-		node->setMD2Animation(scene::EMAT_STAND);
-		node->setMaterialTexture(0, driver->getTexture("../../Resources/white.jpg"));
 	}
 
 	// Add camera
@@ -124,10 +121,40 @@ int tictactoe() {
 
 	// Speed in units per second
 	const f32 SPEED = 5.f;
+	
+	// Randomize turn
+	srand(time(NULL));
+	int isPlayersTurn = rand() % 2 + 1; // 1 = Player (X), 2 = AI (O)
+	bool turnStart = true;
 
 	// Run window
 	while (window->run())
 	{
+		// Add X/O mesh in an empty slot at the start of each turn
+		if (turnStart) {
+			if (isPlayersTurn == 1) // Player's (X) turn
+				mesh = smgr->getMesh("../../Resources/X.obj");
+			else // AI's (O) turn
+				mesh = smgr->getMesh("../../Resources/O.obj");
+			if (!mesh)
+			{
+				window->drop();
+				return 1;
+			}
+			// Choose empty slot
+
+			// Place X/O mesh
+			node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(20, 20, 0));
+			// Texture X/O mesh
+			if (node)
+			{
+				node->setMaterialFlag(EMF_LIGHTING, false);
+				node->setMD2Animation(scene::EMAT_STAND);
+				node->setMaterialTexture(0, driver->getTexture("../../Resources/white.jpg"));
+			}
+			turnStart = false;
+		}
+
 		// Calculate the frame delta time
 		const u32 now = window->getTimer()->getTime();
 		const f32 frameDeltaTime = (f32)(now - timer) / 1000.f; // Time in seconds
@@ -160,6 +187,7 @@ int tictactoe() {
 	return 0;
 }
 
+// Application driver
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR    lpCmdLine,
@@ -170,35 +198,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Run Game
 	return tictactoe();
-
-	/*
-	// Initialize global strings
-	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadStringW(hInstance, IDC_TICTACTOE, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
-
-	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-	return FALSE;
-	}
-
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TICTACTOE));
-
-	MSG msg;
-
-	// Main message loop:
-	while (GetMessage(&msg, nullptr, 0, 0))
-	{
-	if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-	{
-	TranslateMessage(&msg);
-	DispatchMessage(&msg);
-	}
-	}
-
-	return (int) msg.wParam;
-	*/
 }
 
 //
