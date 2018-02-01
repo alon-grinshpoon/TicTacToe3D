@@ -57,17 +57,86 @@ int tictactoe() {
 	// Set UI font
 	guienv->getSkin()->setFont(guienv->getFont("../../irrlicht-1.8.4/media/font_dejavu_sans.png"));
 
-	// Start label
-	start:
-
-	// Add grid mesh to window
-	IAnimatedMesh* mesh = smgr->getMesh("../../Resources/grid.obj");
+	// Add title mesh to window
+	IAnimatedMesh * mesh = smgr->getMesh("../../Resources/title.obj");
 	if (!mesh)
 	{
 		window->drop();
 		return 1;
 	}
-	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh);
+	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh, 0, 1, vector3df(0, -2.0f, 0));
+	// Texture title mesh
+	if (node)
+	{
+		node->setMaterialFlag(EMF_LIGHTING, false);
+		node->setMD2Animation(scene::EMAT_STAND);
+		node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+	}
+	// Add static text to window
+	guienv->addStaticText(L"Press SPACE to start or ESC to quit.",
+		rect<s32>(175, 10, 660, 50), false);
+
+	// Add camera
+	smgr->addCameraSceneNode(0, vector3df(0, 0, -80), vector3df(0, 0, 0));
+	// Other camera options
+	// smgr->addCameraSceneNodeMaya(0, -1500.0F, 200.0F, 1500.0F,-1,200.0F,true);
+	// smgr->addCameraSceneNodeFPS();
+
+	// Intitialize a flag for quiting
+	bool quit = false;
+
+	while (window->run() && !quit)
+	{
+		if (!receiver.IsPressed()) {
+
+			// Start game
+			if (receiver.IsKeyDown(KEY_SPACE)) {
+				// Release key
+				receiver.release(KEY_SPACE);
+				// Unpress reciever
+				receiver.press();
+				// Clear GUI
+				guienv->clear();
+				smgr->clear();
+				// Start game
+				break;
+			}
+
+			// Quit game
+			if (receiver.IsKeyDown(KEY_ESCAPE)) {
+				quit = true;
+				// Release key
+				receiver.release(KEY_ESCAPE);
+			}
+
+			// Unpress reciever
+			receiver.press();
+		}
+
+		// Draw frame
+		driver->beginScene(true, true, SColor(255, 70, 180, 90));
+		smgr->drawAll(); // Draw the 3D scene
+		guienv->drawAll(); // Draw the GUI environment
+		driver->endScene(); // End the scene
+	}
+	if (quit) {
+		// Remove screen
+		window->drop();
+		// Return
+		return 0;
+	}
+
+	// Start label
+	start:
+
+	// Add grid mesh to window
+	mesh = smgr->getMesh("../../Resources/grid.obj");
+	if (!mesh)
+	{
+		window->drop();
+		return 1;
+	}
+	node = smgr->addAnimatedMeshSceneNode(mesh);
 	// Texture grid mesh
 	if (node)
 	{
@@ -78,8 +147,6 @@ int tictactoe() {
 
 	// Add camera
 	smgr->addCameraSceneNode(0, vector3df(0, 0, -80), vector3df(0, 0, 0));
-	// smgr->addCameraSceneNodeMaya(0, -1500.0F, 200.0F, 1500.0F,-1,200.0F,true);
-	// smgr->addCameraSceneNodeFPS();
 
 	// Randomize turn
 	srand(time(NULL));
@@ -87,11 +154,11 @@ int tictactoe() {
 	bool turnStart = true;
 	int turn = 0;
 
-	// Intitialize a flags for winning, quiting, pausing, and restarting
+	// reintitialize the flags for winning, quiting, pausing, and restarting
 	bool win = false;
-	bool quit = false;
 	bool pause = false;
 	bool restart = false;
+	quit = false;
 
 	// Run window
 	while (window->run() && !quit)
