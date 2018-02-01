@@ -33,31 +33,62 @@ public:
 	{
 		// Remember whether each key is down or up
 		if (event.EventType == irr::EET_KEY_INPUT_EVENT)
-			KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+			if (!event.KeyInput.PressedDown)
+				pressed = false;
+			else
+				KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
 
 		return false;
 	}
 
-	// Check if a key is being held down
+	// Check if a key was pressed
 	virtual bool IsKeyDown(EKEY_CODE keyCode) const
 	{
 		return KeyIsDown[keyCode];
 	}
 
+	// Check if a key is released
+	virtual bool IsKeyUp(EKEY_CODE keyCode) const
+	{
+		return !KeyIsDown[keyCode];
+	}
+
+	// Check if a key is being held down
+	virtual bool IsPressed() const
+	{
+		return pressed;
+	}
+
+	// Set keyboard as pressed
+	virtual void press()
+	{
+		pressed = true;
+	}
+
+	// Set a key as released
+	virtual void release(EKEY_CODE keyCode)
+	{
+		KeyIsDown[keyCode] = false;
+	}
+
+	// Constructor
 	KeyboardEventReceiver()
 	{
-		for (u32 i = 0; i<KEY_KEY_CODES_COUNT; ++i)
+		for (u32 i = 0; i < KEY_KEY_CODES_COUNT; ++i)
 			KeyIsDown[i] = false;
+		pressed = false;
 	}
 
 private:
 	// Store the current state of each key
 	bool KeyIsDown[KEY_KEY_CODES_COUNT];
+	// Flag for a single press
+	bool pressed;
 };
 
 // TicTacToe Main Screen
 int tictactoe() {
-	
+
 	// Initialize the board data structure
 	Board* board = Board::getInstance();
 
@@ -106,7 +137,7 @@ int tictactoe() {
 
 	// Speed in units per second
 	const f32 SPEED = 5.f;
-	
+
 	// Randomize turn
 	srand(time(NULL));
 	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
@@ -123,7 +154,8 @@ int tictactoe() {
 				// Add static text to window
 				guienv->addStaticText(L"It's  your turn!",
 					rect<s32>(10, 10, 260, 22), false);
-			} else { // AI's (O) turn
+			}
+			else { // AI's (O) turn
 				mesh = smgr->getMesh("../../Resources/O.obj");
 				// Add static text to window
 				guienv->addStaticText(L"It's the AI's turn!",
@@ -136,7 +168,7 @@ int tictactoe() {
 				return 1;
 			}
 			// Choose empty slot
-			vector3df slot = board->getEmptySlot();
+			vector3df slot = board->getSlot();
 			// Place X/O mesh
 			node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, slot);
 			// Texture X/O mesh
@@ -155,22 +187,37 @@ int tictactoe() {
 		timer = now;
 
 		// Check for keyboard interaction
-		core::vector3df nodePosition = node->getPosition();
-		if (receiver.IsKeyDown(irr::KEY_KEY_W))
-			nodePosition.Y += SPEED * frameDeltaTime;
-		else if (receiver.IsKeyDown(irr::KEY_KEY_S))
-			nodePosition.Y -= SPEED * frameDeltaTime;
-		if (receiver.IsKeyDown(irr::KEY_KEY_A))
-			nodePosition.X -= SPEED * frameDeltaTime;
-		else if (receiver.IsKeyDown(irr::KEY_KEY_D))
-			nodePosition.X += SPEED * frameDeltaTime;
-		// Set position
-		node->setPosition(nodePosition);
+		if (!receiver.IsPressed()) {
 
-		// Set X/O
-		if (receiver.IsKeyDown(irr::KEY_SPACE)) {
-			player = (player == 1) ? 2 : 1;
-			turnStart = true;
+			core::vector3df nodePosition = node->getPosition();
+			if (receiver.IsKeyDown(KEY_KEY_W)) {
+				nodePosition.Y += SPEED;
+				receiver.release(KEY_KEY_W);
+			}
+			else if (receiver.IsKeyDown(KEY_KEY_S)) {
+				nodePosition.Y -= SPEED;
+				receiver.release(KEY_KEY_S);
+			} if (receiver.IsKeyDown(KEY_KEY_A)) {
+				nodePosition.X -= SPEED;
+				receiver.release(KEY_KEY_A);
+			}
+			else if (receiver.IsKeyDown(KEY_KEY_D)) {
+				nodePosition.X += SPEED;
+				receiver.release(KEY_KEY_D);
+			}
+			// Set position
+			node->setPosition(nodePosition);
+
+			// Set X/O
+			if (receiver.IsKeyDown(KEY_SPACE)) {
+				node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+				player = (player == 1) ? 2 : 1;
+				turnStart = true;
+				receiver.release(KEY_SPACE);
+			}
+
+			// Unpress reciever
+			receiver.press();
 		}
 
 		// Draw frame

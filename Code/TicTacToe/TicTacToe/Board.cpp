@@ -11,9 +11,9 @@ using namespace gui;
 
 Board Board::boardInstance;
 
-vector3df Board::getEmptySlot()
+vector3df Board::getSlot()
 {
-	return vector3df(20, 20, 0);
+	return vector3df(0, 0, 0);
 }
 
 void Board::setSlot(int row, int column, int player) {

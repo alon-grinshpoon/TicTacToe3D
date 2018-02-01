@@ -10,7 +10,7 @@ class Board
 {
 public:
 	static Board* getInstance() { return &boardInstance; }
-	irr::core::vector3df getEmptySlot();
+	irr::core::vector3df getSlot();
 	void setSlot(int row, int column, int player);
 	bool checkWin();
 
