@@ -3,6 +3,7 @@
 // Includess
 #include "stdafx.h"
 #include "TicTacToe.h"
+#include <stdio.h>  // Used for debugging
 // Namespaces
 using namespace irr; // Irrlicht namespace
 using namespace core;
@@ -13,6 +14,7 @@ using namespace gui;
 // Link with the Irrlicht.lib to use the Irrlicht.DLL file (already copied in the project folder)
 #pragma comment(lib, "../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib")
 // Static Variables
+# define DEBUG 1 // Debugging flag
 #define MAX_LOADSTRING 100
 // Global Variables
 HINSTANCE hInst;                                // current instance
@@ -135,9 +137,6 @@ int tictactoe() {
 	// Frame rate timer
 	u32 timer = window->getTimer()->getTime();
 
-	// Speed in units per second
-	const f32 SPEED = 5.f;
-
 	// Randomize turn
 	srand(time(NULL));
 	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
@@ -152,7 +151,7 @@ int tictactoe() {
 			if (player == 1) { // User's (X) turn
 				mesh = smgr->getMesh("../../Resources/X.obj");
 				// Add static text to window
-				guienv->addStaticText(L"It's  your turn!",
+				guienv->addStaticText(L"It's your turn!",
 					rect<s32>(10, 10, 260, 22), false);
 			}
 			else { // AI's (O) turn
@@ -161,14 +160,29 @@ int tictactoe() {
 				guienv->addStaticText(L"It's the AI's turn!",
 					rect<s32>(10, 10, 260, 22), false);
 			}
-
 			if (!mesh)
 			{
 				window->drop();
 				return 1;
 			}
-			// Choose empty slot
-			vector3df slot = board->getSlot();
+
+			if (DEBUG == 1){
+				// Debugging
+				wchar_t m_string[256];
+				swprintf_s(m_string, L"Player is %d", player);
+				guienv->addStaticText(m_string,	rect<s32>(10, 20, 260, 30), false);
+				swprintf_s(m_string, L"Slots are %d %d %d | %d %d %d | %d %d %d",
+					board->getSlot(0, 0), board->getSlot(0, 1), board->getSlot(0, 2),
+					board->getSlot(1, 0), board->getSlot(1, 1), board->getSlot(1, 2),
+					board->getSlot(2, 0), board->getSlot(2, 1), board->getSlot(2, 2)
+				);
+				guienv->addStaticText(m_string, rect<s32>(10, 30, 260, 60), false);
+			}
+
+			// Get center slot
+			vector3df slot = board->getCenterSlot();
+			// Skew distance from camera for visibily
+			slot.Z -= DISTANCE_FACTOR;
 			// Place X/O mesh
 			node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, slot);
 			// Texture X/O mesh
@@ -189,31 +203,56 @@ int tictactoe() {
 		// Check for keyboard interaction
 		if (!receiver.IsPressed()) {
 
-			core::vector3df nodePosition = node->getPosition();
+			// Get position
+			vector3df nodePosition = node->getPosition();
+
+			// Update position (up/down and left/right)
 			if (receiver.IsKeyDown(KEY_KEY_W)) {
-				nodePosition.Y += SPEED;
+				// Move up if possible
+				nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+				// Release key
 				receiver.release(KEY_KEY_W);
 			}
 			else if (receiver.IsKeyDown(KEY_KEY_S)) {
-				nodePosition.Y -= SPEED;
+				// Move down if possible
+				nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+				// Release key
 				receiver.release(KEY_KEY_S);
-			} if (receiver.IsKeyDown(KEY_KEY_A)) {
-				nodePosition.X -= SPEED;
+			}
+			if (receiver.IsKeyDown(KEY_KEY_A)) {
+				// Move left if possible
+				nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+				// Release key
 				receiver.release(KEY_KEY_A);
 			}
 			else if (receiver.IsKeyDown(KEY_KEY_D)) {
-				nodePosition.X += SPEED;
+				// Move right if possible
+				nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+				// Release key
 				receiver.release(KEY_KEY_D);
 			}
+
 			// Set position
 			node->setPosition(nodePosition);
 
 			// Set X/O
 			if (receiver.IsKeyDown(KEY_SPACE)) {
-				node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
-				player = (player == 1) ? 2 : 1;
-				turnStart = true;
-				receiver.release(KEY_SPACE);
+				// Check if slot empty
+				if (board->isEmptySlot(node->getPosition())){
+					// Update board
+					board->setSlot(node->getPosition(), player);
+					// Change texture
+					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+					// Skew back distance from camera
+					vector3df nodePosition = node->getPosition();
+					nodePosition.Z += DISTANCE_FACTOR;
+					node->setPosition(nodePosition);
+					// Switch turn
+					player = (player == 1) ? 2 : 1;
+					turnStart = true;
+					// Release key
+					receiver.release(KEY_SPACE);
+				}
 			}
 
 			// Unpress reciever
