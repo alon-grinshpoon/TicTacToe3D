@@ -9,19 +9,23 @@ using namespace video;
 using namespace io;
 using namespace gui;
 
+// The board single instance
 Board Board::boardInstance;
 
+// The board data structure (a BOARD_SIZE * BOARD_SIZE matrix)
 int Board::board[BOARD_SIZE][BOARD_SIZE] = {
 	{ 0,0,0 },
 	{ 0,0,0 },
 	{ 0,0,0 },
 };
 
+// Get the center slot of the board
 irr::core::vector3df Board::getCenterSlot()
 {
 	return vector3df(0, 0, 0);
 }
 
+// Check if a given slot is empty
 bool Board::isEmptySlot(irr::core::vector3df position)
 {
 	// Calculate coordiantes
@@ -31,6 +35,7 @@ bool Board::isEmptySlot(irr::core::vector3df position)
 	return (board[x][y] == 0);
 }
 
+// Set X/O to a slot
 void Board::setSlot(irr::core::vector3df position, int player) {
 	// Calculate coordiantes
 	int x = getCoordinate(position.X);
@@ -39,11 +44,13 @@ void Board::setSlot(irr::core::vector3df position, int player) {
 	board[x][y] = player;
 }
 
+// Get the value on a slot on the board
 int Board::getSlot(int x, int y)
 {
 	return board[x][y];
 }
 
+// Check if the board has a winning configuration
 bool Board::checkWin() {
 	bool win;
 	// Check rows
@@ -84,6 +91,7 @@ bool Board::checkWin() {
 	return win;
 }
 
+// Reset the board
 void Board::reset()
 {
 	for (int i = 0; i < BOARD_SIZE; ++i)
@@ -91,6 +99,7 @@ void Board::reset()
 			board[i][j] = 0;
 }
 
+// Convert a 3D position to a board coordinate
 int Board::getCoordinate(irr::f32 position)
 {
 	return (position + POSITION_FACTOR) / POSITION_FACTOR;
