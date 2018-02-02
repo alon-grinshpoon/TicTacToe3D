@@ -1,6 +1,8 @@
 # TicTacToe3D
 Apple recruitment challenge:  3D TicTacToe game implementation written in C++ using Irrlicht 1.8.4
 
+Developed by Alon Grinshpoon (alon.grinshpoon@gmail.com) on January 2018.
+
 ## Project Structure
 
 - __Code__: contains all source code, external libraries, and assets
