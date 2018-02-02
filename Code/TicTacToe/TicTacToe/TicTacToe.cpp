@@ -80,7 +80,7 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 		node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 	}
 
-	// Add static text to window
+	// Add static text to window showing instructions
 	guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
 		rect<s32>(175, 10, 660, 50), false);
 
@@ -126,6 +126,52 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 	}
 
 	return (quit == false) ? OK : QUIT;
+}
+
+// Initialzie Turn
+int initalizeTurn(int player, IAnimatedMesh** mesh, IAnimatedMeshSceneNode** node, IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board) {
+	// Clear GUI
+	guienv->clear();
+	// Set mesh
+	
+	if (player == PLAYER_USER) { // User's (X) turn
+		*mesh = smgr->getMesh(PATH_ASSEST_X);
+		// Add static text to window indicating it's the user's turn
+		guienv->addStaticText(TEXT_TURN_USER,
+			rect<s32>(10, 10, 260, 50), false);
+		// Add static text to window showing game instructions
+		guienv->addStaticText(TEXT_INSTRUCTIONS_GAME,
+			rect<s32>(10, 30, 660, 50), false);
+	}
+	else { // AI's (O) turn
+		*mesh = smgr->getMesh(PATH_ASSEST_O);
+		// Add static text to window indicating it's the AI's turn
+		guienv->addStaticText(TEXT_TURN_AI,
+			rect<s32>(10, 10, 260, 50), false);
+	}
+	if (!mesh)
+	{
+		window->drop();
+		return ERROR;
+	}
+
+	// Debug
+	// debug(guienv, player, board, node);
+
+	// Get center slot
+	vector3df slot = board->getCenterSlot();
+	// Skew distance from camera for visibily
+	slot.Z -= DISTANCE_FACTOR;
+	// Place X/O mesh
+	*node = smgr->addAnimatedMeshSceneNode(*mesh, 0, -1, slot);
+	// Texture X/O mesh
+	if (node)
+	{
+		(*node)->setMaterialFlag(EMF_LIGHTING, false);
+		(*node)->setMD2Animation(scene::EMAT_STAND);
+		(*node)->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_WHITE));
+	}
+	return OK;
 }
 
 // Game Screen
@@ -202,7 +248,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 				}
 				// Clear UI text
 				guienv->clear();
-				// Add static text to window
+				// Add static text to window showing instructions
 				guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
 					rect<s32>(315, 10, 660, 50), false);
 				// Pause game
@@ -229,51 +275,14 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 		}
 		// Game is on
 		else {
-			// Add X/O mesh in an empty slot at the start of each turn
+			// Add X/O mesh at the start of each turn
 			if (turnStart) {
 				// Increment turn
 				++turn;
-				// Clear GUI
-				guienv->clear();
-				// Set mesh
-				if (player == PLAYER_USER) { // User's (X) turn
-					mesh = smgr->getMesh(PATH_ASSEST_X);
-					// Add static text to window
-					guienv->addStaticText(TEXT_TURN_USER,
-						rect<s32>(10, 10, 260, 50), false);
-					// Add static text to window
-					guienv->addStaticText(TEXT_INSTRUCTIONS_GAME,
-						rect<s32>(10, 30, 660, 50), false);
-
-				}
-				else { // AI's (O) turn
-					mesh = smgr->getMesh(PATH_ASSEST_O);
-					// Add static text to window
-					guienv->addStaticText(TEXT_TURN_AI,
-						rect<s32>(10, 10, 260, 50), false);
-				}
-				if (!mesh)
-				{
-					window->drop();
-					return ERROR;
-				}
-
-				// Debug
-				debug(guienv, player, board, node);
-
-				// Get center slot
-				vector3df slot = board->getCenterSlot();
-				// Skew distance from camera for visibily
-				slot.Z -= DISTANCE_FACTOR;
-				// Place X/O mesh
-				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, slot);
-				// Texture X/O mesh
-				if (node)
-				{
-					node->setMaterialFlag(EMF_LIGHTING, false);
-					node->setMD2Animation(scene::EMAT_STAND);
-					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_WHITE));
-				}
+				// Initialize turn
+				int returnCode = initalizeTurn(player, &mesh, &node, window, driver, smgr, guienv, keyboard, board);
+				if (returnCode == ERROR) return ERROR;
+				// Deactivate turn flag
 				turnStart = false;
 			}
 

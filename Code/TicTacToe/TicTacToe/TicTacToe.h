@@ -57,4 +57,5 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board, AI * ai);
 // Main Function
 int tictactoe();
-
+// Initialzie Turn
+int initalizeTurn(int player, IAnimatedMesh** mesh, IAnimatedMeshSceneNode** node, IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board);
