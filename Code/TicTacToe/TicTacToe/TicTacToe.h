@@ -9,6 +9,9 @@
 // Static Variables
 
 # define DEBUG						0 // Debugging flag
+# define ERROR						1 // Debugging flag
+# define OK							0 // Debugging flag
+# define QUIT						2 // Debugging flag
 
 #define PATH_LIB					"../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib"
 #define PATH_FONT					"../../irrlicht-1.8.4/media/font_dejavu_sans.png"
@@ -37,3 +40,10 @@ static void drawFrame(IrrlichtDevice *window, IVideoDriver* driver, ISceneManage
 static void clearGUI(ISceneManager* smgr, IGUIEnvironment* guienv);
 // Debug Prints
 void debug(IGUIEnvironment * guienv, int player, Board* board, IAnimatedMeshSceneNode* node);
+// Title Screen
+int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard);
+// Game Screen
+int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board, AI * ai);
+// Main Function
+int tictactoe();
+

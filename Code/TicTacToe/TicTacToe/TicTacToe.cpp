@@ -71,43 +71,14 @@ void debug(IGUIEnvironment * guienv, int player, Board* board, IAnimatedMeshScen
 	}
 }
 
-// TicTacToe Main Screen
-int tictactoe() {
-
-	// Initialize the board data structure
-	Board* board = Board::getInstance();
-
-	// Initialize the AI
-	AI* ai = AI::getInstance();
-
-	// Create a keyboard event receiver
-	Keyboard receiver;
-
-	// Create a game window
-	IrrlichtDevice *window =
-		createDevice(video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16,
-			false, false, false, &receiver);
-
-	// Check that window is successfully initialized
-	if (!window) return 1;
-
-	// Set window caption
-	window->setWindowCaption(TEXT_WINDOW);
-
-	// Get window components
-	IVideoDriver* driver = window->getVideoDriver();
-	ISceneManager* smgr = window->getSceneManager();
-	IGUIEnvironment* guienv = window->getGUIEnvironment();
-
-	// Set UI font
-	guienv->getSkin()->setFont(guienv->getFont(PATH_FONT));
-
+// Title Screen
+int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard) {
 	// Add title mesh to window
-	IAnimatedMesh * mesh = smgr->getMesh(PATH_ASSEST_TITLE);
+	IAnimatedMesh* mesh = smgr->getMesh(PATH_ASSEST_TITLE);
 	if (!mesh)
 	{
 		window->drop();
-		return 1;
+		return ERROR;
 	}
 	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh, 0, 1, vector3df(0, -2.0f, 0));
 	// Texture title mesh
@@ -133,14 +104,14 @@ int tictactoe() {
 
 	while (window->run() && !quit)
 	{
-		if (!receiver.IsPressed()) {
+		if (!keyboard->IsPressed()) {
 
 			// Start game
-			if (receiver.IsKeyDown(KEY_SPACE)) {
+			if (keyboard->IsKeyDown(KEY_SPACE)) {
 				// Release key
-				receiver.release(KEY_SPACE);
+				keyboard->release(KEY_SPACE);
 				// Unpress reciever
-				receiver.press();
+				keyboard->press();
 				// Clear GUI
 				clearGUI(smgr, guienv);
 				// Start game
@@ -148,37 +119,37 @@ int tictactoe() {
 			}
 
 			// Quit game
-			if (receiver.IsKeyDown(KEY_ESCAPE)) {
+			if (keyboard->IsKeyDown(KEY_ESCAPE)) {
 				quit = true;
 				// Release key
-				receiver.release(KEY_ESCAPE);
+				keyboard->release(KEY_ESCAPE);
 			}
 
 			// Unpress reciever
-			receiver.press();
+			keyboard->press();
 		}
 
 		// Draw frame
 		drawFrame(window, driver, smgr, guienv);
 	}
-	if (quit) {
-		// Remove screen
-		window->drop();
-		// Return
-		return 0;
-	}
 
+	return (quit == false) ? OK : QUIT;
+}
+
+// Game Screen
+int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board, AI * ai) {
+	
 	// Start label
 	start:
 
 	// Add grid mesh to window
-	mesh = smgr->getMesh(PATH_ASSEST_GRID);
+	IAnimatedMesh* mesh = smgr->getMesh(PATH_ASSEST_GRID);
 	if (!mesh)
 	{
 		window->drop();
-		return 1;
+		return ERROR;
 	}
-	node = smgr->addAnimatedMeshSceneNode(mesh);
+	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh);
 	// Texture grid mesh
 	if (node)
 	{
@@ -200,7 +171,7 @@ int tictactoe() {
 	bool win = false;
 	bool pause = false;
 	bool restart = false;
-	quit = false;
+	bool quit = false;
 
 	// Run window
 	while (window->run() && !quit)
@@ -226,9 +197,9 @@ int tictactoe() {
 				if (!mesh)
 				{
 					window->drop();
-					return 1;
+					return ERROR;
 				}
-				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(0,0,-30));
+				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(0, 0, -30));
 				// Texture title mesh
 				if (node)
 				{
@@ -244,21 +215,21 @@ int tictactoe() {
 			}
 
 			// Check for keyboard interaction
-			if (!receiver.IsPressed()) {
+			if (!keyboard->IsPressed()) {
 				// Restart game
-				if (receiver.IsKeyDown(KEY_SPACE)) {
+				if (keyboard->IsKeyDown(KEY_SPACE)) {
 					restart = true;
 					// Release key
-					receiver.release(KEY_SPACE);
+					keyboard->release(KEY_SPACE);
 				}
 				// Quit game
-				if (receiver.IsKeyDown(KEY_ESCAPE)) {
+				if (keyboard->IsKeyDown(KEY_ESCAPE)) {
 					quit = true;
 					// Release key
-					receiver.release(KEY_ESCAPE);
+					keyboard->release(KEY_ESCAPE);
 				}
 				// Unpress reciever
-				receiver.press();
+				keyboard->press();
 			}
 		}
 		// Game is on
@@ -285,7 +256,7 @@ int tictactoe() {
 				if (!mesh)
 				{
 					window->drop();
-					return 1;
+					return ERROR;
 				}
 
 				// Debug
@@ -310,42 +281,42 @@ int tictactoe() {
 			vector3df nodePosition;
 			if (player == 1) { // User's (X) turn
 				// Check for keyboard interaction
-				if (!receiver.IsPressed()) {
+				if (!keyboard->IsPressed()) {
 
 					// Get position
 					nodePosition = node->getPosition();
 
 					// Update position (up/down and left/right)
-					if (receiver.IsKeyDown(KEY_KEY_W)) {
+					if (keyboard->IsKeyDown(KEY_KEY_W)) {
 						// Move up if possible
 						nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
 						// Release key
-						receiver.release(KEY_KEY_W);
+						keyboard->release(KEY_KEY_W);
 					}
-					else if (receiver.IsKeyDown(KEY_KEY_S)) {
+					else if (keyboard->IsKeyDown(KEY_KEY_S)) {
 						// Move down if possible
 						nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
 						// Release key
-						receiver.release(KEY_KEY_S);
+						keyboard->release(KEY_KEY_S);
 					}
-					if (receiver.IsKeyDown(KEY_KEY_A)) {
+					if (keyboard->IsKeyDown(KEY_KEY_A)) {
 						// Move left if possible
 						nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
 						// Release key
-						receiver.release(KEY_KEY_A);
+						keyboard->release(KEY_KEY_A);
 					}
-					else if (receiver.IsKeyDown(KEY_KEY_D)) {
+					else if (keyboard->IsKeyDown(KEY_KEY_D)) {
 						// Move right if possible
 						nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
 						// Release key
-						receiver.release(KEY_KEY_D);
+						keyboard->release(KEY_KEY_D);
 					}
 
 					// Set position
 					node->setPosition(nodePosition);
 
 					// Set X/O
-					if (receiver.IsKeyDown(KEY_SPACE)) {
+					if (keyboard->IsKeyDown(KEY_SPACE)) {
 						// Check if slot empty
 						if (board->isEmptySlot(node->getPosition())) {
 							// Update board
@@ -364,43 +335,43 @@ int tictactoe() {
 							turnStart = true;
 						}
 						// Release key
-						receiver.release(KEY_SPACE);
+						keyboard->release(KEY_SPACE);
 					}
 				}
 			}
 			else { // AI's (O) turn
 
-					// Get position
-					nodePosition = ai->chooseSlot(*board);
+				// Get position
+				nodePosition = ai->chooseSlot(*board);
 
-					// Set position
-					node->setPosition(nodePosition);
+				// Set position
+				node->setPosition(nodePosition);
 
-					// Set X/O
-					board->setSlot(node->getPosition(), player);
-					// Change texture
-					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
-					// Skew back distance from camera
-					vector3df nodePosition = node->getPosition();
-					nodePosition.Z += DISTANCE_FACTOR;
-					node->setPosition(nodePosition);
-					// Check for win
-					if (board->checkWin())
-						win = true;
-					// Switch turn
-					player = (player == 1) ? 2 : 1;
-					turnStart = true;
+				// Set X/O
+				board->setSlot(node->getPosition(), player);
+				// Change texture
+				node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
+				// Skew back distance from camera
+				vector3df nodePosition = node->getPosition();
+				nodePosition.Z += DISTANCE_FACTOR;
+				node->setPosition(nodePosition);
+				// Check for win
+				if (board->checkWin())
+					win = true;
+				// Switch turn
+				player = (player == 1) ? 2 : 1;
+				turnStart = true;
 			}
 
 			// Quit game
-			if (receiver.IsKeyDown(KEY_ESCAPE)) {
+			if (keyboard->IsKeyDown(KEY_ESCAPE)) {
 				quit = true;
 				// Release key
-				receiver.release(KEY_ESCAPE);
+				keyboard->release(KEY_ESCAPE);
 			}
 
 			// Unpress reciever
-			receiver.press();
+			keyboard->press();
 		}
 
 		// Draw frame
@@ -412,6 +383,50 @@ int tictactoe() {
 
 	// Return
 	return 0;
+}
+
+// Main Function
+int tictactoe() {
+
+	// Initialize the board data structure
+	Board* board = Board::getInstance();
+
+	// Initialize the AI
+	AI* ai = AI::getInstance();
+
+	// Create a keyboard event receiver
+	Keyboard keyboard;
+
+	// Create a game window
+	IrrlichtDevice *window =
+		createDevice(video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16,
+			false, false, false, &keyboard);
+
+	// Check that window is successfully initialized
+	if (!window) return 1;
+
+	// Set window caption
+	window->setWindowCaption(TEXT_WINDOW);
+
+	// Get window components
+	IVideoDriver* driver = window->getVideoDriver();
+	ISceneManager* smgr = window->getSceneManager();
+	IGUIEnvironment* guienv = window->getGUIEnvironment();
+
+	// Set UI font
+	guienv->getSkin()->setFont(guienv->getFont(PATH_FONT));
+
+	// Start title screen
+	int returnCode = titleScreen(window, driver, smgr, guienv, &keyboard);
+	if (returnCode == QUIT) {
+		// Remove screen
+		window->drop();
+		// Return
+		return OK;
+	}
+
+	// Start game screen, return its return code
+	return gameScreen(window, driver, smgr, guienv, &keyboard, board, ai);
 }
 
 // Application driver
