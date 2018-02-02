@@ -17,7 +17,7 @@ Apple recruitment challenge:  3D TicTacToe game implementation written in C++ us
   
   - __Cpp IDE__: A tutorial on how C++ development in Visual Studio
   
-  ## App Structure
+## App Structure
   
   - __AI.cpp/AI.h__: My simple AI implementation which randomly chooses a slot on the board. If it fails to randomly find a slot after a set number of attempts, it will scan the board from the bottom-left corner to find an empty slot.
   
