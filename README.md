@@ -1,7 +1,9 @@
 # TicTacToe3D
-Apple recruitment challenge:  3D TicTacToe game implementation written in C++ using Irrlicht 1.8.4
+Apple Recruitment Challenge: 3D/AI TicTacToe game implementation written in C++ using Irrlicht 1.8.4 (for OpenGL)
 
 Developed by Alon Grinshpoon (alon.grinshpoon@gmail.com) on January 2018.
+
+Demo video on YouTube (unlisted): https://youtu.be/acUKPvx-JCk
 
 ## Project Structure
 
@@ -12,7 +14,9 @@ Developed by Alon Grinshpoon (alon.grinshpoon@gmail.com) on January 2018.
   - __irrlicht-1.8.4__: A free open source C++ library that acts as a 3D engine and utilized OpenGL (http://irrlicht.sourceforge.net/)
   
   - __TicTacToe__: My Visual Studio solution containing all the source code
-  
+ 
+- __Demo Video__: Contains a demo video demonstrating a game with multiple rounds between a user and the game's AI (Includes all scenarios of win, lose, tie). Also unlisted on YouTube under https://youtu.be/acUKPvx-JCk
+ 
 - __Research__: Links to preliminary research I did in order to develop a 3D app in C++
 
   - __3D Game Engines__: different C++ game engines I explored before choosing to use Irrlicht
