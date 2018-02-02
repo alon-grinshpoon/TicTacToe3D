@@ -12,7 +12,7 @@ using namespace video;
 using namespace io;
 using namespace gui;
 // Link with the Irrlicht.lib to use the Irrlicht.DLL file (already copied in the project folder)
-#pragma comment(lib, "../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib")
+#pragma comment(lib, PATH_LIB)
 // Static Variables
 # define DEBUG 0 // Debugging flag
 #define MAX_LOADSTRING 100
@@ -47,7 +47,7 @@ int tictactoe() {
 	if (!window) return 1;
 
 	// Set window caption
-	window->setWindowCaption(L"TicTacToe - Alon Grinshpoon's Apple Challenge");
+	window->setWindowCaption(TEXT_WINDOW);
 
 	// Get window components
 	IVideoDriver* driver = window->getVideoDriver();
@@ -55,10 +55,10 @@ int tictactoe() {
 	IGUIEnvironment* guienv = window->getGUIEnvironment();
 
 	// Set UI font
-	guienv->getSkin()->setFont(guienv->getFont("../../irrlicht-1.8.4/media/font_dejavu_sans.png"));
+	guienv->getSkin()->setFont(guienv->getFont(PATH_FONT));
 
 	// Add title mesh to window
-	IAnimatedMesh * mesh = smgr->getMesh("../../Resources/title.obj");
+	IAnimatedMesh * mesh = smgr->getMesh(PATH_ASSEST_TITLE);
 	if (!mesh)
 	{
 		window->drop();
@@ -70,10 +70,10 @@ int tictactoe() {
 	{
 		node->setMaterialFlag(EMF_LIGHTING, false);
 		node->setMD2Animation(scene::EMAT_STAND);
-		node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+		node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 	}
 	// Add static text to window
-	guienv->addStaticText(L"Press SPACE to start or ESC to quit.",
+	guienv->addStaticText(TEXT_INSTRUCTIONS,
 		rect<s32>(175, 10, 660, 50), false);
 
 	// Add camera
@@ -130,7 +130,7 @@ int tictactoe() {
 	start:
 
 	// Add grid mesh to window
-	mesh = smgr->getMesh("../../Resources/grid.obj");
+	mesh = smgr->getMesh(PATH_ASSEST_GRID);
 	if (!mesh)
 	{
 		window->drop();
@@ -142,7 +142,7 @@ int tictactoe() {
 	{
 		node->setMaterialFlag(EMF_LIGHTING, false);
 		node->setMD2Animation(scene::EMAT_STAND);
-		node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+		node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 	}
 
 	// Add camera
@@ -174,13 +174,13 @@ int tictactoe() {
 			if (!pause) {
 				// Add title mesh to window
 				if (turn > BOARD_SIZE * BOARD_SIZE) {
-					mesh = smgr->getMesh("../../Resources/tie.obj");
+					mesh = smgr->getMesh(PATH_ASSEST_TIE);
 				}
 				else if (player == 2) { // User (X) won, since AI is last
-					mesh = smgr->getMesh("../../Resources/won.obj");
+					mesh = smgr->getMesh(PATH_ASSEST_WON);
 				}
 				else { // AI (O) won, since user is last
-					mesh = smgr->getMesh("../../Resources/lost.obj");
+					mesh = smgr->getMesh(PATH_ASSEST_LOST);
 				}
 				if (!mesh)
 				{
@@ -193,10 +193,10 @@ int tictactoe() {
 				{
 					node->setMaterialFlag(EMF_LIGHTING, false);
 					node->setMD2Animation(scene::EMAT_STAND);
-					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 				}
 				// Add static text to window
-				guienv->addStaticText(L"Press SPACE to restart or ESC to quit.",
+				guienv->addStaticText(TEXT_INSTRUCTIONS,
 					rect<s32>(315, 10, 660, 50), false);
 				// Pause game
 				pause = true;
@@ -230,15 +230,15 @@ int tictactoe() {
 				guienv->clear();
 				// Set mesh
 				if (player == 1) { // User's (X) turn
-					mesh = smgr->getMesh("../../Resources/X.obj");
+					mesh = smgr->getMesh(PATH_ASSEST_X);
 					// Add static text to window
-					guienv->addStaticText(L"It's your turn!",
+					guienv->addStaticText(TEXT_TURN_USER,
 						rect<s32>(10, 10, 260, 50), false);
 				}
 				else { // AI's (O) turn
-					mesh = smgr->getMesh("../../Resources/O.obj");
+					mesh = smgr->getMesh(PATH_ASSEST_O);
 					// Add static text to window
-					guienv->addStaticText(L"It's the AI's turn!",
+					guienv->addStaticText(TEXT_TURN_AI,
 						rect<s32>(10, 10, 260, 50), false);
 				}
 				if (!mesh)
@@ -282,7 +282,7 @@ int tictactoe() {
 				{
 					node->setMaterialFlag(EMF_LIGHTING, false);
 					node->setMD2Animation(scene::EMAT_STAND);
-					node->setMaterialTexture(0, driver->getTexture("../../Resources/white.jpg"));
+					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_WHITE));
 				}
 				turnStart = false;
 			}
@@ -331,7 +331,7 @@ int tictactoe() {
 							// Update board
 							board->setSlot(node->getPosition(), player);
 							// Change texture
-							node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+							node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 							// Skew back distance from camera
 							vector3df nodePosition = node->getPosition();
 							nodePosition.Z += DISTANCE_FACTOR;
@@ -359,7 +359,7 @@ int tictactoe() {
 					// Set X/O
 					board->setSlot(node->getPosition(), player);
 					// Change texture
-					node->setMaterialTexture(0, driver->getTexture("../../Resources/oak.jpg"));
+					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 					// Skew back distance from camera
 					vector3df nodePosition = node->getPosition();
 					nodePosition.Z += DISTANCE_FACTOR;
