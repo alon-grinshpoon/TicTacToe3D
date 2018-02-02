@@ -14,6 +14,8 @@ using namespace gui;
 class Keyboard : public IEventReceiver
 {
 public:
+	// Singleton Desgin 
+	static Keyboard* getInstance() { return &keyboardInstance; }
 	// On even handler
 	virtual bool OnEvent(const SEvent& event);
 	// Check if a key was pressed
@@ -35,6 +37,8 @@ public:
 	}
 
 private:
+	// The keyboard instance
+	static Keyboard keyboardInstance;
 	// Store the current state of each key
 	bool KeyIsDown[KEY_KEY_CODES_COUNT];
 	// Flag for a single press

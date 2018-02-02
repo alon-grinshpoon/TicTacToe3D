@@ -10,6 +10,9 @@ using namespace video;
 using namespace io;
 using namespace gui;
 
+// The keyboard single instance
+Keyboard Keyboard::keyboardInstance;
+
 // Store the current state of each key
 bool KeyIsDown[KEY_KEY_CODES_COUNT];
 

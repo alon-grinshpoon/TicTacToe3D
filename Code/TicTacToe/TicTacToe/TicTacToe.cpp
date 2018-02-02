@@ -423,13 +423,13 @@ int tictactoe() {
 	// Initialize the AI
 	AI* ai = AI::getInstance();
 
-	// Create a keyboard event receiver
-	Keyboard keyboard;
+	// Initialize the keyboard event receiver
+	Keyboard * keyboard = Keyboard::getInstance();;
 
 	// Create a game window
 	IrrlichtDevice *window =
 		createDevice(video::EDT_SOFTWARE, dimension2d<u32>(640, 480), 16,
-			false, false, false, &keyboard);
+			false, false, false, keyboard);
 
 	// Check that window is successfully initialized
 	if (!window) return 1;
@@ -446,7 +446,7 @@ int tictactoe() {
 	guienv->getSkin()->setFont(guienv->getFont(PATH_FONT));
 
 	// Start title screen
-	int returnCode = titleScreen(window, driver, smgr, guienv, &keyboard);
+	int returnCode = titleScreen(window, driver, smgr, guienv, keyboard);
 	if (returnCode == QUIT) {
 		// Remove screen
 		window->drop();
@@ -455,7 +455,7 @@ int tictactoe() {
 	}
 
 	// Start game screen, return its return code
-	return gameScreen(window, driver, smgr, guienv, &keyboard, board, ai);
+	return gameScreen(window, driver, smgr, guienv, keyboard, board, ai);
 }
 
 // Application driver
