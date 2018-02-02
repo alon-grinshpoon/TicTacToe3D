@@ -32,3 +32,20 @@ Demo video on YouTube (unlisted): https://youtu.be/acUKPvx-JCk
   - __Keyboard.cpp/Keyboard.h__: An event handler customized to detect user input through the keyboard.
 
   - __TicTacToe.cpp/TicTacToe.h__: The game implementation which include a title screen and a game screen.
+
+## Installation Guide
+
+1. Clone the reop.
+2. Double-click ~/TicTacToe3D/Code/TicTacToe/TicTacToe.sln
+3. Visual Studio 2017 should open the project automatically.
+4. On the top bar, make sure x86 is set before running.
+5. Run.
+
+## Troubleshooting
+
+In the case of compiler errors:
+
+1. Right-click on the _TickTakToe_ project (not the entire Solution!) in the Solution Explorer.
+2. Choose _Properties_.
+3. On the left menu, under _Configuration Properties_, select _VC++ Directories_.
+4. For the configuration your are trying to run (Debug, Release, etc) make sure that __..\..\irrlicht-1.8.4\include__ is found under _Include Directories_, and __..\..\irrlicht-1.8.4\lib\Win32-visualstudio;__ is found under _Library Directories_.
