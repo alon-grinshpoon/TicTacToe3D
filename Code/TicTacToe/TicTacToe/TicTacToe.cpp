@@ -81,7 +81,7 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 	}
 
 	// Add static text to window
-	guienv->addStaticText(TEXT_INSTRUCTIONS,
+	guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
 		rect<s32>(175, 10, 660, 50), false);
 
 	// Add camera
@@ -201,7 +201,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 				}
 				// Add static text to window
-				guienv->addStaticText(TEXT_INSTRUCTIONS,
+				guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
 					rect<s32>(315, 10, 660, 50), false);
 				// Pause game
 				pause = true;
@@ -239,6 +239,10 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 					// Add static text to window
 					guienv->addStaticText(TEXT_TURN_USER,
 						rect<s32>(10, 10, 260, 50), false);
+					// Add static text to window
+					guienv->addStaticText(TEXT_INSTRUCTIONS_GAME,
+						rect<s32>(10, 30, 660, 50), false);
+
 				}
 				else { // AI's (O) turn
 					mesh = smgr->getMesh(PATH_ASSEST_O);
