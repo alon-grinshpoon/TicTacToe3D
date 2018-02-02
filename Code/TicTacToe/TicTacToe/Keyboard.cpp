@@ -48,10 +48,10 @@ bool Keyboard::IsPressed() const
 	return pressed;
 }
 
-// Set keyboard as pressed
-void Keyboard::press()
+// Set keyboard as unpressed
+void Keyboard::unpress()
 {
-	pressed = true;
+	pressed = false;
 }
 
 // Set a key as released

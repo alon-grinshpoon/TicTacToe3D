@@ -24,8 +24,8 @@ public:
 	virtual bool IsKeyUp(EKEY_CODE keyCode) const;
 	// Check if a key is being held down
 	virtual bool IsPressed() const;
-	// Set keyboard as pressed
-	virtual void press();
+	// Set keyboard as unpressed
+	virtual void unpress();
 	// Set a key as released
 	virtual void release(EKEY_CODE keyCode);
 	// Constructor

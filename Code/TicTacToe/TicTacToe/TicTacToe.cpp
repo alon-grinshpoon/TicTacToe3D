@@ -103,7 +103,7 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 				// Release key
 				keyboard->release(KEY_SPACE);
 				// Unpress reciever
-				keyboard->press();
+				keyboard->unpress();
 				// Clear GUI
 				clearGUI(smgr, guienv);
 				// Start game
@@ -118,7 +118,7 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 			}
 
 			// Unpress reciever
-			keyboard->press();
+			keyboard->unpress();
 		}
 
 		// Draw frame
@@ -178,7 +178,7 @@ int endGame(bool pause, int turn, int player,  bool * restart, bool * quit, IAni
 			keyboard->release(KEY_ESCAPE);
 		}
 		// Unpress reciever
-		keyboard->press();
+		keyboard->unpress();
 	}
 }
 
@@ -347,7 +347,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 	smgr->addCameraSceneNode(0, VECTOR_POSITION_CAMERA, VECTOR_DIRECTION_CAMERA);
 
 	// Randomize first turn
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
 	bool turnStart = true;
 	int turn = 0;
@@ -400,7 +400,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 			}
 
 			// Unpress reciever
-			keyboard->press();
+			keyboard->unpress();
 		}
 
 		// Draw frame
