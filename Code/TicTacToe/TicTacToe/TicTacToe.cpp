@@ -200,6 +200,8 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 					node->setMD2Animation(scene::EMAT_STAND);
 					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 				}
+				// Clear UI text
+				guienv->clear();
 				// Add static text to window
 				guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
 					rect<s32>(315, 10, 660, 50), false);
