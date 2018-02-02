@@ -13,17 +13,6 @@ using namespace io;
 using namespace gui;
 // Link with the Irrlicht.lib to use the Irrlicht.DLL file (already copied in the project folder)
 #pragma comment(lib, PATH_LIB)
-// Static Variables
-#define MAX_LOADSTRING 100
-// Global Variables
-HINSTANCE hInst;                                // current instance
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
-												// Forward declarations of functions
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 // Draw a frame
 void drawFrame(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv)
@@ -73,6 +62,7 @@ void debug(IGUIEnvironment * guienv, int player, Board* board, IAnimatedMeshScen
 
 // Title Screen
 int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard) {
+
 	// Add title mesh to window
 	IAnimatedMesh* mesh = smgr->getMesh(PATH_ASSEST_TITLE);
 	if (!mesh)
@@ -80,7 +70,8 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 		window->drop();
 		return ERROR;
 	}
-	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh, 0, 1, vector3df(0, -2.0f, 0));
+	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh, 0, 1, VECTOR_POSITION_TITLE);
+
 	// Texture title mesh
 	if (node)
 	{
@@ -94,14 +85,15 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 		rect<s32>(175, 10, 660, 50), false);
 
 	// Add camera
-	smgr->addCameraSceneNode(0, vector3df(0, 0, -80), vector3df(0, 0, 0));
+	smgr->addCameraSceneNode(0, VECTOR_POSITION_CAMERA, VECTOR_DIRECTION_CAMERA);
 	// Other camera options
-	// smgr->addCameraSceneNodeMaya(0, -1500.0F, 200.0F, 1500.0F,-1,200.0F,true);
-	// smgr->addCameraSceneNodeFPS();
+	//// smgr->addCameraSceneNodeMaya(0, -1500.0F, 200.0F, 1500.0F,-1,200.0F,true);
+	//// smgr->addCameraSceneNodeFPS();
 
 	// Intitialize a flag for quiting
 	bool quit = false;
 
+	// Run window
 	while (window->run() && !quit)
 	{
 		if (!keyboard->IsPressed()) {
@@ -150,6 +142,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 		return ERROR;
 	}
 	IAnimatedMeshSceneNode* node = smgr->addAnimatedMeshSceneNode(mesh);
+
 	// Texture grid mesh
 	if (node)
 	{
@@ -159,15 +152,15 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 	}
 
 	// Add camera
-	smgr->addCameraSceneNode(0, vector3df(0, 0, -80), vector3df(0, 0, 0));
+	smgr->addCameraSceneNode(0, VECTOR_POSITION_CAMERA, VECTOR_DIRECTION_CAMERA);
 
-	// Randomize turn
+	// Randomize first turn
 	srand(time(NULL));
 	int player = rand() % 2 + 1; // 1 = User (X), 2 = AI (O)
 	bool turnStart = true;
 	int turn = 0;
 
-	// reintitialize the flags for winning, quiting, pausing, and restarting
+	// Intitialize the flags for winning, quiting, pausing, and restarting
 	bool win = false;
 	bool pause = false;
 	bool restart = false;
@@ -188,7 +181,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 				if (turn > BOARD_SIZE * BOARD_SIZE) {
 					mesh = smgr->getMesh(PATH_ASSEST_TIE);
 				}
-				else if (player == 2) { // User (X) won, since AI is last
+				else if (player == PLAYER_AI) { // User (X) won, since AI is last
 					mesh = smgr->getMesh(PATH_ASSEST_WON);
 				}
 				else { // AI (O) won, since user is last
@@ -199,7 +192,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 					window->drop();
 					return ERROR;
 				}
-				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, vector3df(0, 0, -30));
+				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, VECTOR_POSITION_WON_OR_LOST);
 				// Texture title mesh
 				if (node)
 				{
@@ -241,7 +234,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 				// Clear GUI
 				guienv->clear();
 				// Set mesh
-				if (player == 1) { // User's (X) turn
+				if (player == PLAYER_USER) { // User's (X) turn
 					mesh = smgr->getMesh(PATH_ASSEST_X);
 					// Add static text to window
 					guienv->addStaticText(TEXT_TURN_USER,
@@ -279,7 +272,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 			}
 
 			vector3df nodePosition;
-			if (player == 1) { // User's (X) turn
+			if (player == PLAYER_USER) { // User's (X) turn
 				// Check for keyboard interaction
 				if (!keyboard->IsPressed()) {
 
@@ -331,7 +324,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 							if (board->checkWin())
 								win = true;
 							// Switch turn
-							player = (player == 1) ? 2 : 1;
+							player = (player == PLAYER_USER) ? PLAYER_AI : PLAYER_USER;
 							turnStart = true;
 						}
 						// Release key
@@ -359,7 +352,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 				if (board->checkWin())
 					win = true;
 				// Switch turn
-				player = (player == 1) ? 2 : 1;
+				player = (player == PLAYER_USER) ? PLAYER_AI : PLAYER_USER;
 				turnStart = true;
 			}
 
@@ -440,126 +433,4 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// Run Game
 	return tictactoe();
-}
-
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-	WNDCLASSEXW wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TICTACTOE));
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_TICTACTOE);
-	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassExW(&wcex);
-}
-
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-	hInst = hInstance; // Store instance handle in our global variable
-
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-	if (!hWnd)
-	{
-		return FALSE;
-	}
-
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
-
-	return TRUE;
-}
-
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE:  Processes messages for the main window.
-//
-//  WM_COMMAND  - process the application menu
-//  WM_PAINT    - Paint the main window
-//  WM_DESTROY  - post a quit message and return
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_COMMAND:
-	{
-		int wmId = LOWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-	}
-	break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code that uses hdc here...
-		EndPaint(hWnd, &ps);
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
-}
-
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
-
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
-		break;
-	}
-	return (INT_PTR)FALSE;
 }

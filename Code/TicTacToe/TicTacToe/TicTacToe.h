@@ -13,6 +13,9 @@
 # define OK							0 // Debugging flag
 # define QUIT						2 // Debugging flag
 
+# define PLAYER_AI					2
+# define PLAYER_USER				1
+
 #define PATH_LIB					"../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib"
 #define PATH_FONT					"../../irrlicht-1.8.4/media/font_dejavu_sans.png"
 
@@ -34,6 +37,13 @@
 
 #define COLOR_BACKGROUND			SColor(255, 70, 180, 90)
 
+#define VECTOR_POSITION_TITLE		vector3df(0, -2.0f, 0)
+#define VECTOR_POSITION_CAMERA		vector3df(0, 0, -80)
+#define VECTOR_POSITION_WON_OR_LOST	vector3df(0, 0, -30)
+#define VECTOR_DIRECTION_CAMERA		vector3df(0, 0, 0)
+
+
+/* Functions Decleration */
 // Draw frame
 static void drawFrame(IrrlichtDevice *window, IVideoDriver* driver, ISceneManager* smgr, IGUIEnvironment* guienv);
 // Clear GUI
