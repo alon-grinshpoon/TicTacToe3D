@@ -180,6 +180,7 @@ int endGame(bool pause, int turn, int player,  bool * restart, bool * quit, IAni
 		// Unpress reciever
 		keyboard->unpress();
 	}
+	return OK;
 }
 
 // Initialzie Turn
