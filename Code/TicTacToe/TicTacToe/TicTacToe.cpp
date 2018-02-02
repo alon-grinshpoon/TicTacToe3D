@@ -128,6 +128,60 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 	return (quit == false) ? OK : QUIT;
 }
 
+// End Game
+int endGame(bool pause, int turn, int player,  bool * restart, bool * quit, IAnimatedMesh** mesh, IAnimatedMeshSceneNode** node, IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard) {
+	if (!pause) {
+		// Add title mesh to window
+		if (turn > BOARD_SIZE * BOARD_SIZE) {
+			*mesh = smgr->getMesh(PATH_ASSEST_TIE);
+		}
+		else if (player == PLAYER_AI) { // User (X) won, since AI is last
+			*mesh = smgr->getMesh(PATH_ASSEST_WON);
+		}
+		else { // AI (O) won, since user is last
+			*mesh = smgr->getMesh(PATH_ASSEST_LOST);
+		}
+		if (!mesh)
+		{
+			window->drop();
+			return ERROR;
+		}
+		*node = smgr->addAnimatedMeshSceneNode(*mesh, 0, -1, VECTOR_POSITION_WON_OR_LOST);
+		// Texture title mesh
+		if (*node)
+		{
+			(*node)->setMaterialFlag(EMF_LIGHTING, false);
+			(*node)->setMD2Animation(scene::EMAT_STAND);
+			(*node)->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
+		}
+		// Clear UI text
+		guienv->clear();
+		// Add static text to window showing instructions
+		guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
+			rect<s32>(315, 10, 660, 50), false);
+		// Pause game
+		pause = true;
+	}
+
+	// Check for keyboard interaction
+	if (!keyboard->IsPressed()) {
+		// Restart game
+		if (keyboard->IsKeyDown(KEY_SPACE)) {
+			*restart = true;
+			// Release key
+			keyboard->release(KEY_SPACE);
+		}
+		// Quit game
+		if (keyboard->IsKeyDown(KEY_ESCAPE)) {
+			*quit = true;
+			// Release key
+			keyboard->release(KEY_ESCAPE);
+		}
+		// Unpress reciever
+		keyboard->press();
+	}
+}
+
 // Initialzie Turn
 int initalizeTurn(int player, IAnimatedMesh** mesh, IAnimatedMeshSceneNode** node, IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board) {
 	// Clear GUI
@@ -172,6 +226,98 @@ int initalizeTurn(int player, IAnimatedMesh** mesh, IAnimatedMeshSceneNode** nod
 		(*node)->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_WHITE));
 	}
 	return OK;
+}
+
+// User Gameplay
+void playUser(int * player, bool * win, bool * turnStart, IAnimatedMeshSceneNode* node, Keyboard * keyboard, Board * board, IVideoDriver * driver) {
+	
+	vector3df nodePosition;
+
+	// Check for keyboard interaction
+	if (!keyboard->IsPressed()) {
+
+		// Get position
+		nodePosition = node->getPosition();
+
+		// Update position (up/down and left/right)
+		if (keyboard->IsKeyDown(KEY_KEY_W)) {
+			// Move up if possible
+			nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+			// Release key
+			keyboard->release(KEY_KEY_W);
+		}
+		else if (keyboard->IsKeyDown(KEY_KEY_S)) {
+			// Move down if possible
+			nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+			// Release key
+			keyboard->release(KEY_KEY_S);
+		}
+		if (keyboard->IsKeyDown(KEY_KEY_A)) {
+			// Move left if possible
+			nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
+			// Release key
+			keyboard->release(KEY_KEY_A);
+		}
+		else if (keyboard->IsKeyDown(KEY_KEY_D)) {
+			// Move right if possible
+			nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
+			// Release key
+			keyboard->release(KEY_KEY_D);
+		}
+
+		// Set position
+		node->setPosition(nodePosition);
+
+		// Set X/O
+		if (keyboard->IsKeyDown(KEY_SPACE)) {
+			// Check if slot empty
+			if (board->isEmptySlot(node->getPosition())) {
+				// Update board
+				board->setSlot(node->getPosition(), *player);
+				// Change texture
+				node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
+				// Skew back distance from camera
+				vector3df nodePosition = node->getPosition();
+				nodePosition.Z += DISTANCE_FACTOR;
+				node->setPosition(nodePosition);
+				// Check for win
+				if (board->checkWin())
+					*win = true;
+				// Switch turn
+				*player = (*player == PLAYER_USER) ? PLAYER_AI : PLAYER_USER;
+				*turnStart = true;
+			}
+			// Release key
+			keyboard->release(KEY_SPACE);
+		}
+	}
+}
+
+// AI Gameplay
+void playAI(AI * ai, int * player, bool * win, bool * turnStart, IAnimatedMeshSceneNode* node, Board * board, IVideoDriver * driver) {
+	
+	vector3df nodePosition;
+
+	// Get position
+	nodePosition = ai->chooseSlot(*board);
+
+	// Set position
+	node->setPosition(nodePosition);
+
+	// Set X/O
+	board->setSlot(node->getPosition(), *player);
+	// Change texture
+	node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
+	// Skew back distance from camera
+	nodePosition = node->getPosition();
+	nodePosition.Z += DISTANCE_FACTOR;
+	node->setPosition(nodePosition);
+	// Check for win
+	if (board->checkWin())
+		*win = true;
+	// Switch turn
+	*player = (*player == PLAYER_USER) ? PLAYER_AI : PLAYER_USER;
+	*turnStart = true;
 }
 
 // Game Screen
@@ -222,56 +368,9 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 			goto start;
 		} // Check if the game was won or a tie occured
 		else if (win || turn > BOARD_SIZE * BOARD_SIZE) {
-			if (!pause) {
-				// Add title mesh to window
-				if (turn > BOARD_SIZE * BOARD_SIZE) {
-					mesh = smgr->getMesh(PATH_ASSEST_TIE);
-				}
-				else if (player == PLAYER_AI) { // User (X) won, since AI is last
-					mesh = smgr->getMesh(PATH_ASSEST_WON);
-				}
-				else { // AI (O) won, since user is last
-					mesh = smgr->getMesh(PATH_ASSEST_LOST);
-				}
-				if (!mesh)
-				{
-					window->drop();
-					return ERROR;
-				}
-				node = smgr->addAnimatedMeshSceneNode(mesh, 0, -1, VECTOR_POSITION_WON_OR_LOST);
-				// Texture title mesh
-				if (node)
-				{
-					node->setMaterialFlag(EMF_LIGHTING, false);
-					node->setMD2Animation(scene::EMAT_STAND);
-					node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
-				}
-				// Clear UI text
-				guienv->clear();
-				// Add static text to window showing instructions
-				guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
-					rect<s32>(315, 10, 660, 50), false);
-				// Pause game
-				pause = true;
-			}
-
-			// Check for keyboard interaction
-			if (!keyboard->IsPressed()) {
-				// Restart game
-				if (keyboard->IsKeyDown(KEY_SPACE)) {
-					restart = true;
-					// Release key
-					keyboard->release(KEY_SPACE);
-				}
-				// Quit game
-				if (keyboard->IsKeyDown(KEY_ESCAPE)) {
-					quit = true;
-					// Release key
-					keyboard->release(KEY_ESCAPE);
-				}
-				// Unpress reciever
-				keyboard->press();
-			}
+			// End the game
+			int returnCode = endGame(pause, turn, player, &restart, &quit, &mesh, &node, window, driver, smgr, guienv, keyboard);
+			if (returnCode == ERROR) return ERROR;
 		}
 		// Game is on
 		else {
@@ -286,89 +385,11 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 				turnStart = false;
 			}
 
-			vector3df nodePosition;
 			if (player == PLAYER_USER) { // User's (X) turn
-				// Check for keyboard interaction
-				if (!keyboard->IsPressed()) {
-
-					// Get position
-					nodePosition = node->getPosition();
-
-					// Update position (up/down and left/right)
-					if (keyboard->IsKeyDown(KEY_KEY_W)) {
-						// Move up if possible
-						nodePosition.Y += (nodePosition.Y < POSITION_FACTOR) ? POSITION_FACTOR : 0;
-						// Release key
-						keyboard->release(KEY_KEY_W);
-					}
-					else if (keyboard->IsKeyDown(KEY_KEY_S)) {
-						// Move down if possible
-						nodePosition.Y -= (nodePosition.Y > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
-						// Release key
-						keyboard->release(KEY_KEY_S);
-					}
-					if (keyboard->IsKeyDown(KEY_KEY_A)) {
-						// Move left if possible
-						nodePosition.X -= (nodePosition.X > -POSITION_FACTOR) ? POSITION_FACTOR : 0;
-						// Release key
-						keyboard->release(KEY_KEY_A);
-					}
-					else if (keyboard->IsKeyDown(KEY_KEY_D)) {
-						// Move right if possible
-						nodePosition.X += (nodePosition.X < POSITION_FACTOR) ? POSITION_FACTOR : 0;
-						// Release key
-						keyboard->release(KEY_KEY_D);
-					}
-
-					// Set position
-					node->setPosition(nodePosition);
-
-					// Set X/O
-					if (keyboard->IsKeyDown(KEY_SPACE)) {
-						// Check if slot empty
-						if (board->isEmptySlot(node->getPosition())) {
-							// Update board
-							board->setSlot(node->getPosition(), player);
-							// Change texture
-							node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
-							// Skew back distance from camera
-							vector3df nodePosition = node->getPosition();
-							nodePosition.Z += DISTANCE_FACTOR;
-							node->setPosition(nodePosition);
-							// Check for win
-							if (board->checkWin())
-								win = true;
-							// Switch turn
-							player = (player == PLAYER_USER) ? PLAYER_AI : PLAYER_USER;
-							turnStart = true;
-						}
-						// Release key
-						keyboard->release(KEY_SPACE);
-					}
-				}
+				playUser(&player, &win, &turnStart, node, keyboard, board, driver);
 			}
 			else { // AI's (O) turn
-
-				// Get position
-				nodePosition = ai->chooseSlot(*board);
-
-				// Set position
-				node->setPosition(nodePosition);
-
-				// Set X/O
-				board->setSlot(node->getPosition(), player);
-				// Change texture
-				node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
-				// Skew back distance from camera
-				vector3df nodePosition = node->getPosition();
-				nodePosition.Z += DISTANCE_FACTOR;
-				node->setPosition(nodePosition);
-				// Check for win
-				if (board->checkWin())
-					win = true;
-				// Switch turn
-				player = (player == PLAYER_USER) ? PLAYER_AI : PLAYER_USER;
-				turnStart = true;
+				playAI(ai, &player, &win, &turnStart, node, board, driver);
 			}
 
 			// Quit game
@@ -390,7 +411,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 	window->drop();
 
 	// Return
-	return 0;
+	return OK;
 }
 
 // Main Function

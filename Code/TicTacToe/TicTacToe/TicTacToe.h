@@ -59,3 +59,7 @@ int gameScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * sm
 int tictactoe();
 // Initialzie Turn
 int initalizeTurn(int player, IAnimatedMesh** mesh, IAnimatedMeshSceneNode** node, IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv, Keyboard * keyboard, Board * board);
+// User Gameplay
+void playUser(int * player, bool * win, bool * turnStart, IAnimatedMeshSceneNode* node, Keyboard * keyboard, Board * board, IVideoDriver * driver);
+// AI Gameplay
+void playAI(AI * ai, int * player, bool * win, bool * turnStart, IAnimatedMeshSceneNode* node, Board * board, IVideoDriver * driver);
