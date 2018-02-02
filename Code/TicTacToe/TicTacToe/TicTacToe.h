@@ -30,8 +30,9 @@
 #define PATH_ASSEST_O				"../../Assets/O.obj"
 
 #define TEXT_WINDOW					L"TicTacToe - Alon Grinshpoon's Apple Challenge"
-#define TEXT_INSTRUCTIONS_GENERAL	L"Press SPACE to start or ESC to quit."
+#define TEXT_INSTRUCTIONS_START		L"Press SPACE to start or ESC to quit."
 #define TEXT_INSTRUCTIONS_GAME		L"Use W S A D to move shape and SPACE to set it."
+#define TEXT_INSTRUCTIONS_END		L"Press SPACE to restart or ESC to quit."
 
 #define TEXT_TURN_USER				L"It's your turn!"
 #define TEXT_TURN_AI				L"It's the AI's turn!"

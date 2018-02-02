@@ -81,7 +81,7 @@ int titleScreen(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * s
 	}
 
 	// Add static text to window showing instructions
-	guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
+	guienv->addStaticText(TEXT_INSTRUCTIONS_START,
 		rect<s32>(175, 10, 660, 50), false);
 
 	// Add camera
@@ -157,7 +157,7 @@ int endGame(bool pause, int turn, int player,  bool * restart, bool * quit, IAni
 		// Clear UI text
 		guienv->clear();
 		// Add static text to window showing instructions
-		guienv->addStaticText(TEXT_INSTRUCTIONS_GENERAL,
+		guienv->addStaticText(TEXT_INSTRUCTIONS_END,
 			rect<s32>(315, 10, 660, 50), false);
 		// Pause game
 		pause = true;
