@@ -49,5 +49,7 @@ Temporary Items
 # My ignores
 Code/TicTacToe/Debug/
 Code/TicTacToe/TicTacToe/Debug/
+Code/TicTacToe/Release/
+Code/TicTacToe/TicTacToe/Release/
 Code/TicTacToe/.vs/
 Code/TicTacToe/.vs/TicTacToe/v15/.suo
