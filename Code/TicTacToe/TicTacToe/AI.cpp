@@ -21,9 +21,8 @@ irr::core::vector3df AI::chooseSlot(Board board)
 	int attempt = 0;
 	while (!foundEmpty && attempt++ < RANDOM_ATTEMPTS) {
 		// Randomize slot
-		srand(time(NULL));
-		x = rand() % (BOARD_SIZE - 1); // Random number between 0 and (BOARD_SIZE - 1)
-		y = rand() % (BOARD_SIZE - 1); // Random number between 0 and (BOARD_SIZE - 1)
+		x = rand() % BOARD_SIZE; // Random number between 0 and (BOARD_SIZE - 1)
+		y = rand() % BOARD_SIZE; // Random number between 0 and (BOARD_SIZE - 1)
 		// Check if empty
 		if (board.isEmptySlot(x, y))
 			foundEmpty = true;
