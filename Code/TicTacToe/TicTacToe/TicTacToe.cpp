@@ -14,7 +14,6 @@ using namespace gui;
 // Link with the Irrlicht.lib to use the Irrlicht.DLL file (already copied in the project folder)
 #pragma comment(lib, PATH_LIB)
 // Static Variables
-# define DEBUG 0 // Debugging flag
 #define MAX_LOADSTRING 100
 // Global Variables
 HINSTANCE hInst;                                // current instance
@@ -26,6 +25,52 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+// Draw a frame
+void drawFrame(IrrlichtDevice *window, IVideoDriver * driver, ISceneManager * smgr, IGUIEnvironment * guienv)
+{
+		driver->beginScene(true, true, COLOR_BACKGROUND);
+		smgr->drawAll(); // Draw the 3D scene
+		guienv->drawAll(); // Draw the GUI environment
+		driver->endScene(); // End the scene
+}
+
+// Clear GUI
+void clearGUI(ISceneManager * smgr, IGUIEnvironment * guienv)
+{
+	// Clear GUI enviroment
+	guienv->clear();
+	// Clear screen manager
+	smgr->clear();
+}
+
+// Debug Prints
+void debug(IGUIEnvironment * guienv, int player, Board* board, IAnimatedMeshSceneNode* node) {
+	// Only print if DEBUG flag is activated in the header file
+	if (DEBUG == 1) {
+		// Debugging
+		wchar_t m_string[256];
+
+		swprintf_s(m_string, L"Player is %d", player);
+		guienv->addStaticText(m_string, rect<s32>(10, 30, 260, 65), false);
+
+		swprintf_s(m_string, L"%d %d %d",
+			board->getSlot(0, 2), board->getSlot(1, 2), board->getSlot(2, 2)
+		);
+		guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 85), false);
+		swprintf_s(m_string, L"%d %d %d",
+			board->getSlot(0, 1), board->getSlot(1, 1), board->getSlot(2, 1)
+		);
+		guienv->addStaticText(m_string, rect<s32>(10, 70, 260, 100), false);
+		swprintf_s(m_string, L"%d %d %d",
+			board->getSlot(0, 0), board->getSlot(1, 0), board->getSlot(2, 0)
+		);
+		guienv->addStaticText(m_string, rect<s32>(10, 90, 260, 120), false);
+
+		swprintf_s(m_string, L"Location is %d %d", node->getPosition().X, node->getPosition().Y);
+		guienv->addStaticText(m_string, rect<s32>(10, 110, 260, 140), false);
+	}
+}
+
 // TicTacToe Main Screen
 int tictactoe() {
 
@@ -36,7 +81,7 @@ int tictactoe() {
 	AI* ai = AI::getInstance();
 
 	// Create a keyboard event receiver
-	KeyboardEventReceiver receiver;
+	Keyboard receiver;
 
 	// Create a game window
 	IrrlichtDevice *window =
@@ -72,6 +117,7 @@ int tictactoe() {
 		node->setMD2Animation(scene::EMAT_STAND);
 		node->setMaterialTexture(0, driver->getTexture(PATH_ASSEST_TEXTURE_OAK));
 	}
+
 	// Add static text to window
 	guienv->addStaticText(TEXT_INSTRUCTIONS,
 		rect<s32>(175, 10, 660, 50), false);
@@ -96,8 +142,7 @@ int tictactoe() {
 				// Unpress reciever
 				receiver.press();
 				// Clear GUI
-				guienv->clear();
-				smgr->clear();
+				clearGUI(smgr, guienv);
 				// Start game
 				break;
 			}
@@ -114,10 +159,7 @@ int tictactoe() {
 		}
 
 		// Draw frame
-		driver->beginScene(true, true, SColor(255, 70, 180, 90));
-		smgr->drawAll(); // Draw the 3D scene
-		guienv->drawAll(); // Draw the GUI environment
-		driver->endScene(); // End the scene
+		drawFrame(window, driver, smgr, guienv);
 	}
 	if (quit) {
 		// Remove screen
@@ -163,10 +205,9 @@ int tictactoe() {
 	// Run window
 	while (window->run() && !quit)
 	{
-		// Check if game need to restart
+		// Check if game needs to restart
 		if (restart) {
-			guienv->clear();
-			smgr->clear();
+			clearGUI(smgr, guienv);
 			board->reset();
 			goto start;
 		} // Check if the game was won or a tie occured
@@ -247,29 +288,8 @@ int tictactoe() {
 					return 1;
 				}
 
-				if (DEBUG == 1){
-					// Debugging
-					wchar_t m_string[256];
-
-					swprintf_s(m_string, L"Player is %d", player);
-					guienv->addStaticText(m_string,	rect<s32>(10, 30, 260, 65), false);
-
-					swprintf_s(m_string, L"%d %d %d",
-						board->getSlot(0, 2), board->getSlot(1, 2), board->getSlot(2, 2)
-					);
-					guienv->addStaticText(m_string, rect<s32>(10, 50, 260, 85), false);
-					swprintf_s(m_string, L"%d %d %d",
-						board->getSlot(0, 1), board->getSlot(1, 1), board->getSlot(2, 1)
-					);
-					guienv->addStaticText(m_string, rect<s32>(10, 70, 260, 100), false);
-					swprintf_s(m_string, L"%d %d %d",
-						board->getSlot(0, 0), board->getSlot(1, 0), board->getSlot(2, 0)
-					);
-					guienv->addStaticText(m_string, rect<s32>(10, 90, 260, 120), false);
-
-					swprintf_s(m_string, L"Location is %d %d", node->getPosition().X, node->getPosition().Y);
-					guienv->addStaticText(m_string, rect<s32>(10, 110, 260, 140), false);
-				}
+				// Debug
+				debug(guienv, player, board, node);
 
 				// Get center slot
 				vector3df slot = board->getCenterSlot();
@@ -384,10 +404,7 @@ int tictactoe() {
 		}
 
 		// Draw frame
-		driver->beginScene(true, true, SColor(255, 70, 180, 90));
-		smgr->drawAll(); // Draw the 3D scene
-		guienv->drawAll(); // Draw the GUI environment
-		driver->endScene(); // End the scene
+		drawFrame(window, driver, smgr, guienv);
 	}
 
 	// Remove screen

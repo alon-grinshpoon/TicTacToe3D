@@ -3,10 +3,13 @@
 #include "resource.h"
 #include "Board.h"
 #include "AI.h"
-#include "KeyboardEventReceiver.h"
+#include "Keyboard.h"
 #include <stdlib.h>
 #include <time.h>
 // Static Variables
+
+# define DEBUG						0 // Debugging flag
+
 #define PATH_LIB					"../../irrlicht-1.8.4/lib/Win32-visualstudio/Irrlicht.lib"
 #define PATH_FONT					"../../irrlicht-1.8.4/media/font_dejavu_sans.png"
 
@@ -26,3 +29,11 @@
 #define TEXT_TURN_USER				L"It's your turn!"
 #define TEXT_TURN_AI				L"It's the AI's turn!"
 
+#define COLOR_BACKGROUND			SColor(255, 70, 180, 90)
+
+// Draw frame
+static void drawFrame(IrrlichtDevice *window, IVideoDriver* driver, ISceneManager* smgr, IGUIEnvironment* guienv);
+// Clear GUI
+static void clearGUI(ISceneManager* smgr, IGUIEnvironment* guienv);
+// Debug Prints
+void debug(IGUIEnvironment * guienv, int player, Board* board, IAnimatedMeshSceneNode* node);

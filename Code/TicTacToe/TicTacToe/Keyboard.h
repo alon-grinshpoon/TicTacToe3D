@@ -11,7 +11,7 @@ using namespace io;
 using namespace gui;
 
 // Keyboard Event Receiver
-class KeyboardEventReceiver : public IEventReceiver
+class Keyboard : public IEventReceiver
 {
 public:
 	// On even handler
@@ -27,7 +27,7 @@ public:
 	// Set a key as released
 	virtual void release(EKEY_CODE keyCode);
 	// Constructor
-	KeyboardEventReceiver::KeyboardEventReceiver()
+	Keyboard::Keyboard()
 	{
 		for (u32 i = 0; i < KEY_KEY_CODES_COUNT; ++i)
 			KeyIsDown[i] = false;

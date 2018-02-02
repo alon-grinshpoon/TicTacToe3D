@@ -1,7 +1,7 @@
 #pragma once
 // Includes
 #include "stdafx.h"
-#include "KeyboardEventReceiver.h"
+#include "Keyboard.h"
 // Namespaces
 using namespace irr; // Irrlicht namespace
 using namespace core;
@@ -16,7 +16,7 @@ bool KeyIsDown[KEY_KEY_CODES_COUNT];
 // Flag for a single press
 bool pressed;
 
-bool KeyboardEventReceiver::OnEvent(const SEvent& event)
+bool Keyboard::OnEvent(const SEvent& event)
 {
 	// Remember whether each key is down or up
 	if (event.EventType == irr::EET_KEY_INPUT_EVENT)
@@ -28,31 +28,31 @@ bool KeyboardEventReceiver::OnEvent(const SEvent& event)
 }
 
 // Check if a key was pressed
-bool KeyboardEventReceiver::IsKeyDown(EKEY_CODE keyCode) const
+bool Keyboard::IsKeyDown(EKEY_CODE keyCode) const
 {
 return KeyIsDown[keyCode];
 }
 
 // Check if a key is released
-bool KeyboardEventReceiver::IsKeyUp(EKEY_CODE keyCode) const
+bool Keyboard::IsKeyUp(EKEY_CODE keyCode) const
 {
 	return !KeyIsDown[keyCode];
 }
 
 // Check if a key is being held down
-bool KeyboardEventReceiver::IsPressed() const
+bool Keyboard::IsPressed() const
 {
 	return pressed;
 }
 
 // Set keyboard as pressed
-void KeyboardEventReceiver::press()
+void Keyboard::press()
 {
 	pressed = true;
 }
 
 // Set a key as released
-void KeyboardEventReceiver::release(EKEY_CODE keyCode)
+void Keyboard::release(EKEY_CODE keyCode)
 {
 	KeyIsDown[keyCode] = false;
 }
