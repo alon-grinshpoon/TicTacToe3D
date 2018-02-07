@@ -1,9 +1,9 @@
 # TicTacToe3D
-Apple Recruitment Challenge: 3D/AI TicTacToe game implementation written in C++ using Irrlicht 1.8.4 (for OpenGL)
+3D/AI TicTacToe game implementation written in C++ using Irrlicht 1.8.4 (for OpenGL)
 
-Developed by Alon Grinshpoon (alon.grinshpoon@gmail.com) on January 2018.
+Developed by Alon Grinshpoon on January 2018.
 
-Demo video on YouTube (unlisted): https://youtu.be/acUKPvx-JCk
+Demo video on YouTube: https://youtu.be/acUKPvx-JCk
 
 ## Project Structure
 
